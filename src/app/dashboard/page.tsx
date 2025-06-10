@@ -207,43 +207,44 @@ export default function DashboardPage() {
       {/* Header Card com Menu */}
       <header className="card mb-6">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-8">
+          <div className="flex items-center">
             <h1 className="text-xl font-bold text-text-primary">Finnantech V2</h1>
-            <nav className="flex gap-8">
-              <button
-                onClick={() => setActiveTab('dashboard')}
-                className={`nav-link ${
-                  activeTab === 'dashboard' ? 'text-text-primary' : 'text-text-secondary hover:text-text-primary'
-                }`}
-              >
-                Dashboard
-              </button>
-              <button
-                onClick={() => setActiveTab('transacoes')}
-                className={`nav-link ${
-                  activeTab === 'transacoes' ? 'text-text-primary' : 'text-text-secondary hover:text-text-primary'
-                }`}
-              >
-                Transações
-              </button>
-              <button
-                onClick={() => setActiveTab('investimentos')}
-                className={`nav-link ${
-                  activeTab === 'investimentos' ? 'text-text-primary' : 'text-text-secondary hover:text-text-primary'
-                }`}
-              >
-                Investimentos
-              </button>
-              <button
-                onClick={() => setActiveTab('relatorios')}
-                className={`nav-link ${
-                  activeTab === 'relatorios' ? 'text-text-primary' : 'text-text-secondary hover:text-text-primary'
-                }`}
-              >
-                Relatórios
-              </button>
-            </nav>
           </div>
+          
+          <nav className="flex gap-8">
+            <button
+              onClick={() => setActiveTab('dashboard')}
+              className={`nav-link ${
+                activeTab === 'dashboard' ? 'text-text-primary' : 'text-text-secondary hover:text-text-primary'
+              }`}
+            >
+              Dashboard
+            </button>
+            <button
+              onClick={() => setActiveTab('transacoes')}
+              className={`nav-link ${
+                activeTab === 'transacoes' ? 'text-text-primary' : 'text-text-secondary hover:text-text-primary'
+              }`}
+            >
+              Transações
+            </button>
+            <button
+              onClick={() => setActiveTab('investimentos')}
+              className={`nav-link ${
+                activeTab === 'investimentos' ? 'text-text-primary' : 'text-text-secondary hover:text-text-primary'
+              }`}
+            >
+              Investimentos
+            </button>
+            <button
+              onClick={() => setActiveTab('relatorios')}
+              className={`nav-link ${
+                activeTab === 'relatorios' ? 'text-text-primary' : 'text-text-secondary hover:text-text-primary'
+              }`}
+            >
+              Relatórios
+            </button>
+          </nav>
           <div className="flex items-center gap-6">
             <div className="flex gap-4 pr-6 border-r border-border">
               <button className="text-text-secondary hover:text-text-primary">
