@@ -1,0 +1,172 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-background text-text-primary font-sans;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-text-primary;
+  }
+
+  p {
+    @apply text-text-primary;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-card rounded-card p-card flex flex-col gap-4 text-text-primary;
+  }
+
+  .header-card {
+    @apply flex-row items-center justify-between p-4;
+  }
+
+  .nav-link {
+    @apply text-text-secondary font-medium transition-colors hover:text-text-primary;
+  }
+
+  .nav-link.active {
+    @apply text-text-primary;
+  }
+
+  .action-icon {
+    @apply text-text-secondary text-xl cursor-pointer hover:text-text-primary;
+  }
+
+  .user-profile {
+    @apply flex items-center gap-3;
+  }
+
+  .user-avatar {
+    @apply w-10 h-10 rounded-full object-cover;
+  }
+
+  .account-label {
+    @apply text-xs text-text-secondary;
+  }
+
+  .user-name {
+    @apply font-semibold text-text-primary;
+  }
+
+  .card-header {
+    @apply flex justify-between items-center;
+  }
+
+  .card-title {
+    @apply font-semibold text-text-primary;
+  }
+
+  .dropdown {
+    @apply bg-[#2a2a2e] border border-border px-3 py-1.5 rounded-lg text-sm cursor-pointer text-text-primary hover:bg-[#333336];
+  }
+
+  .metric-value {
+    @apply text-2xl font-bold text-text-primary;
+  }
+
+  .metric-label {
+    @apply text-sm text-text-secondary;
+  }
+
+  input {
+    @apply text-text-primary placeholder-text-secondary;
+  }
+
+  label {
+    @apply text-text-primary;
+  }
+}
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgb(var(--background-end-rgb))
+  )
+  rgb(var(--background-start-rgb));
+}
+
+/* Adicionando novas cores de destaque */
+.bg-accent-pink { @apply bg-[#f178b6]; }
+.text-accent-pink { @apply text-[#f178b6]; }
+.bg-accent-orange { @apply bg-[#ff9500]; }
+.text-accent-orange { @apply text-[#ff9500]; }
+.bg-accent-yellow { @apply bg-[#ffcc00]; }
+.text-accent-yellow { @apply text-[#ffcc00]; }
+.bg-accent-red { @apply bg-[#ff3b30]; }
+.text-accent-red { @apply text-[#ff3b30]; }
+.bg-accent-gray { @apply bg-[#8e8e93]; }
+.text-accent-gray { @apply text-[#8e8e93]; }
+
+/* Animações para gráficos */
+@keyframes draw-line {
+  from {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+  }
+  to {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes grow-bar {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--target-height);
+  }
+}
+
+.animate-draw-line {
+  animation: draw-line 2s ease-out forwards;
+}
+
+.animate-fade-in {
+  opacity: 0;
+  animation: fade-in 0.5s ease-out forwards;
+}
+
+.animate-grow-bar {
+  animation: grow-bar 1s ease-out forwards;
+}
+
+/* Estilo para dropdown personalizado */
+.bg-card-secondary {
+  @apply bg-[#2a2a2e];
+}
+
+/* Hover effects para gráficos */
+svg circle:hover {
+  r: 6;
+  transition: r 0.2s ease;
+}
+
+.css-bar:hover {
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+} 

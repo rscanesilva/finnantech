@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monex Dashboard</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/phosphor-icons"></script>
+
+    <style>
+        /* Reset e Configurações Globais */
+        :root {
+            --bg-color: #161618;
+            --card-color: #1e1e22;
+            --text-primary: #f0f0f0;
+            --text-secondary: #a0a0a0;
+            --accent-green: #32d583;
+            --accent-blue: #5392ff;
+            --accent-pink: #f178b6;
+            --border-color: #333336;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* Layout Principal */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            grid-template-rows: auto;
+            gap: 1.5rem;
+            width: 100%;
+        }
+
+        /* Estilo Base dos Cards */
+        .card {
+            background-color: var(--card-color);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        /* Cabeçalho */
+        .header-card {
+            grid-column: 1 / -1;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+        }
+
+        .header-card .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .header-card nav {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .header-card nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .header-card nav a.active,
+        .header-card nav a:hover {
+            color: var(--text-primary);
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .action-icons {
+            display: flex;
+            gap: 1rem;
+            padding-right: 1.5rem;
+            border-right: 1px solid var(--border-color);
+        }
+        
+        .action-icons i {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .user-profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .user-info .account-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .user-info .user-name {
+            font-weight: 600;
+        }
+
+
+        /* Card: Saldo */
+        .balance-card {
+            grid-column: span 3;
+            gap: 1.5rem;
+            justify-content: space-between;
+        }
+
+        .balance-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .balance-header h3 {
+            font-weight: 600;
+        }
+        
+        .balance-header .more-icon {
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .balance-details .card-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .balance-details .card-info .cvv-box {
+            background-color: var(--accent-green);
+            color: var(--bg-color);
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.3rem;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        .balance-details .card-info span {
+            color: var(--text-secondary);
+        }
+
+        .balance-details .amount {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .balance-footer div {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .balance-footer div span {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* Card: Estatísticas (com Gráfico SVG) */
+        .statistics-card {
+            grid-column: span 5;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header h3 {
+            font-weight: 600;
+        }
+
+        .card-header .dropdown {
+            background-color: #2a2a2e;
+            border: 1px solid var(--border-color);
+            padding: 0.4rem 0.8rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+        }
+        
+        .chart-container {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Card: Total Enviado (com Gráfico CSS) */
+        .send-card {
+            grid-column: span 4;
+        }
+        
+        .css-bar-chart {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            height: 100px;
+            width: 100%;
+            gap: 10px;
+        }
+        
+        .css-bar-chart .bar {
+            background-color: var(--accent-blue);
+            width: 15%;
+            border-radius: 4px;
+            transition: height 0.3s ease-out;
+        }
+
+        .send-metrics {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .send-metrics .metric-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .send-metrics .metric-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        /* Card: AI Monex */
+        .ai-card {
+            grid-column: span 3;
+            background: linear-gradient(135deg, #2a2a2e, #1e1e22);
+            justify-content: space-between;
+        }
+        
+        .ai-card h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .ai-card p {
+            color: var(--text-secondary);
+        }
+        
+        .ai-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .avatar-stack {
+            display: flex;
+        }
+
+        .avatar-stack img, .avatar-stack .plus-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid var(--card-color);
+            margin-left: -10px;
+        }
+        .avatar-stack img:first-child, .avatar-stack .plus-avatar:first-child {
+            margin-left: 0;
+        }
+        
+        .avatar-stack .plus-avatar {
+            background-color: var(--accent-blue);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .ai-footer .arrow-icon {
+            font-size: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        /* Card: Transações */
+        .transactions-card {
+            grid-column: span 9;
+        }
+
+        .transactions-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .transaction-item {
+            display: grid;
+            grid-template-columns: 40px 2fr 1.5fr 1fr 1.5fr 1fr 40px;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.875rem;
+        }
+        
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+        
+        .transaction-item .icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #2a2a2e;
+            border-radius: 50%;
+        }
+
+        .transaction-item .icon img {
+            width: 24px;
+            height: 24px;
+        }
+        
+        .transaction-item .name {
+            font-weight: 500;
+        }
+        
+        .transaction-item .date,
+        .transaction-item .type {
+            color: var(--text-secondary);
+        }
+        
+        .transaction-item .status {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .status-completed { background-color: var(--accent-green); }
+        .status-canceled { background-color: var(--text-secondary); }
+        
+        .transaction-item .amount {
+            font-weight: 500;
+            text-align: right;
+        }
+        
+        .transaction-item .more-icon {
+            text-align: right;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        /* Responsividade */
+        @media (max-width: 1200px) {
+            .statistics-card { grid-column: span 12; }
+            .balance-card { grid-column: span 6; }
+            .send-card { grid-column: span 6; }
+            .ai-card { grid-column: span 4; }
+            .transactions-card { grid-column: span 8; }
+        }
+
+        @media (max-width: 992px) {
+            body { padding: 1rem; }
+            .header-card nav { display: none; } /* Esconde a navegação principal */
+            .balance-card, .send-card, .ai-card, .transactions-card {
+                grid-column: span 12;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="card header-card">
+        <div class="logo">@monex</div>
+        <nav>
+            <a href="#" class="active">Dashboard</a>
+            <a href="#">Accounts</a>
+            <a href="#">Cards</a>
+            <a href="#">Analytics</a>
+        </nav>
+        <div class="header-actions">
+            <div class="action-icons">
+                <i class="ph ph-bell"></i>
+                <i class="ph ph-question"></i>
+            </div>
+            <div class="user-profile">
+                <img src="https://placehold.co/40x40/7B68EE/FFFFFF?text=EP" alt="Avatar do usuário">
+                <div class="user-info">
+                    <div class="account-label">Account</div>
+                    <div class="user-name">Emma Parson</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="dashboard-grid">
+        <section class="card balance-card">
+            <div class="balance-header">
+                <h3>Balance</h3>
+                <i class="ph ph-dots-three more-icon"></i>
+            </div>
+            <div class="balance-details">
+                <div class="card-info">
+                    <div class="cvv-box">CVV</div>
+                    <span>**** 1842</span>
+                </div>
+                <div class="amount">$32,440.99</div>
+            </div>
+            <div class="balance-footer">
+                <div>Available to spend: <span>$124,040.00</span></div>
+                <div>Credit limit: <span>$520,490.00</span></div>
+            </div>
+        </section>
+
+        <section class="card statistics-card">
+            <div class="card-header">
+                <h3>Statistics</h3>
+                <div class="dropdown">Last Year <i class="ph ph-caret-down"></i></div>
+            </div>
+            <div class="chart-container">
+                <svg width="100%" height="150" viewBox="0 0 500 150" preserveAspectRatio="none">
+                    <path d="M0,80 C50,40 100,100 150,70 S250,20 300,60 S400,120 450,90 L500,80" stroke="#f178b6" fill="none" stroke-width="3"/>
+                    <path d="M0,100 C50,120 100,90 150,110 S250,60 300,90 S400,50 450,70 L500,60" stroke="#5392ff" fill="none" stroke-width="3"/>
+                </svg>
+            </div>
+        </section>
+
+        <section class="card send-card">
+            <div class="card-header">
+                <h3>Total Send</h3>
+                <div class="dropdown">Last Week <i class="ph ph-caret-down"></i></div>
+            </div>
+             <div class="chart-container">
+                <div class="css-bar-chart">
+                    <div class="bar" style="height: 50%;"></div>
+                    <div class="bar" style="height: 75%;"></div>
+                    <div class="bar" style="height: 90%;"></div>
+                    <div class="bar" style="height: 60%;"></div>
+                    <div class="bar" style="height: 85%;"></div>
+                    <div class="bar" style="height: 40%;"></div>
+                    <div class="bar" style="height: 30%;"></div>
+                </div>
+            </div>
+            <div class="send-metrics">
+                <div>
+                    <div class="metric-value">8,3</div>
+                    <div class="metric-label">Cash receipts</div>
+                </div>
+                <div>
+                    <div class="metric-value">6,9</div>
+                    <div class="metric-label">Cash expenses</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="card ai-card">
+            <h3>Find out how</h3>
+            <p>Your friends have AI</p>
+            <div class="ai-footer">
+                <div class="avatar-stack">
+                     <img src="https://placehold.co/32x32/FFC107/FFFFFF?text=A" alt="Avatar 1">
+                     <img src="https://placehold.co/32x32/9C27B0/FFFFFF?text=B" alt="Avatar 2">
+                     <img src="https://placehold.co/32x32/4CAF50/FFFFFF?text=C" alt="Avatar 3">
+                     <div class="plus-avatar">+12</div>
+                </div>
+                <i class="ph ph-caret-right arrow-icon"></i>
+            </div>
+        </section>
+
+        <section class="card transactions-card">
+            <div class="card-header">
+                <h3>Transactions</h3>
+                <div>
+                    <i class="ph ph-magnifying-glass"></i>
+                    View All
+                </div>
+            </div>
+            <div class="transactions-list">
+                <div class="transaction-item">
+                    <div class="icon"><img src="https://cdn.worldvectorlogo.com/logos/adobe-cc-icon.svg" alt="Adobe Logo"></div>
+                    <div class="name">Adobe CC</div>
+                    <div class="date">12 Mar, 11:28 AM</div>
+                    <div class="status"><div class="status-dot status-completed"></div>Completed</div>
+                    <div class="type">Subscription</div>
+                    <div class="amount">- $35.00</div>
+                    <div class="more-icon"><i class="ph ph-dots-three"></i></div>
+                </div>
+                <div class="transaction-item">
+                    <div class="icon"><img src="https://cdn.worldvectorlogo.com/logos/walmart.svg" alt="Walmart Logo"></div>
+                    <div class="name">Walmart</div>
+                    <div class="date">09 Mar, 09:22 AM</div>
+                    <div class="status"><div class="status-dot status-completed"></div>Completed</div>
+                    <div class="type">Food</div>
+                    <div class="amount">- $120.00</div>
+                    <div class="more-icon"><i class="ph ph-dots-three"></i></div>
+                </div>
+                 <div class="transaction-item">
+                    <div class="icon"><img src="https://cdn.worldvectorlogo.com/logos/adidas-1.svg" alt="Adidas Logo"></div>
+                    <div class="name">Adidas</div>
+                    <div class="date">02 Mar, 10:32 AM</div>
+                    <div class="status"><div class="status-dot status-completed"></div>Completed</div>
+                    <div class="type">Shopping</div>
+                    <div class="amount">- $890.00</div>
+                    <div class="more-icon"><i class="ph ph-dots-three"></i></div>
+                </div>
+                <div class="transaction-item">
+                    <div class="icon"><img src="https://cdn.worldvectorlogo.com/logos/uber-2.svg" alt="Uber Logo"></div>
+                    <div class="name">Uber taxi</div>
+                    <div class="date">01 Mar, 08:24 AM</div>
+                    <div class="status"><div class="status-dot status-canceled"></div>Canceled</div>
+                    <div class="type">Transport</div>
+                    <div class="amount">- $48.00</div>
+                    <div class="more-icon"><i class="ph ph-dots-three"></i></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Configuração para ícones do Phosphor
+        phosphor.replace();
+    </script>
+</body>
+</html>
