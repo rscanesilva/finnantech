@@ -1,0 +1,772 @@
+---
+description: 
+globs: frontend/*,*.tsx
+alwaysApply: false
+---
+# Templates de Código - Frontend React/TypeScript
+
+## ⚛️ Componente React Template
+```typescript
+'use client';
+
+import { useState, useEffect, useCallback } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { toast } from 'react-hot-toast';
+
+interface ComponentNameProps {
+  className?: string;
+  // Define props específicas aqui
+}
+
+export default function ComponentName({ 
+  className = '',
+  ...props 
+}: ComponentNameProps) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Effects
+  useEffect(() => {
+    // Effect logic aqui
+  }, []);
+  
+  // Handlers
+  const handleAction = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Action logic aqui
+      
+      toast.success('Ação realizada com sucesso!');
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || 'Erro inesperado';
+      setError(errorMessage);
+      toast.error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+  
+  // Early returns
+  if (error) {
+    return (
+      <Card className={`p-6 border-red-200 bg-red-50 ${className}`}>
+        <p className="text-red-600">Erro: {error}</p>
+        <Button 
+          variant="outline" 
+          onClick={() => setError(null)}
+          className="mt-2"
+        >
+          Tentar novamente
+        </Button>
+      </Card>
+    );
+  }
+  
+  return (
+    <Card className={`p-6 ${className}`}>
+      <div className="space-y-4">
+        {/* Component content */}
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold text-gray-900">
+            Título do Componente
+          </h2>
+          
+          <Button 
+            onClick={handleAction}
+            disabled={loading}
+            className="bg-accent-green hover:bg-accent-green/90"
+          >
+            {loading ? 'Carregando...' : 'Ação'}
+          </Button>
+        </div>
+        
+        {loading && (
+          <div className="animate-pulse space-y-2">
+            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+          </div>
+        )}
+      </div>
+    </Card>
+  );
+}
+```
+
+## 🪝 Custom Hook Template
+```typescript
+import { useState, useEffect, useCallback } from 'react';
+import { apiService } from '@/services/api';
+import { toast } from 'react-hot-toast';
+
+interface UseResourceData<T> {
+  data: T[] | null;
+  loading: boolean;
+  error: string | null;
+  refresh: () => Promise<void>;
+  create: (item: Partial<T>) => Promise<void>;
+  update: (id: string, item: Partial<T>) => Promise<void>;
+  remove: (id: string) => Promise<void>;
+}
+
+export function useResourceData<T extends { id: string }>(
+  endpoint: string
+): UseResourceData<T> {
+  const [data, setData] = useState<T[] | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const response = await apiService.get(endpoint);
+      
+      if (response.data.success) {
+        setData(response.data.data);
+      } else {
+        throw new Error(response.data.message);
+      }
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || 'Erro ao carregar dados';
+      setError(errorMessage);
+      toast.error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  }, [endpoint]);
+  
+  const create = useCallback(async (item: Partial<T>) => {
+    try {
+      setLoading(true);
+      
+      const response = await apiService.post(endpoint, item);
+      
+      if (response.data.success) {
+        await fetchData(); // Refresh data
+        toast.success('Item criado com sucesso!');
+      } else {
+        throw new Error(response.data.message);
+      }
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || 'Erro ao criar item';
+      toast.error(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [endpoint, fetchData]);
+  
+  const update = useCallback(async (id: string, item: Partial<T>) => {
+    try {
+      setLoading(true);
+      
+      const response = await apiService.put(`${endpoint}/${id}`, item);
+      
+      if (response.data.success) {
+        await fetchData(); // Refresh data
+        toast.success('Item atualizado com sucesso!');
+      } else {
+        throw new Error(response.data.message);
+      }
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || 'Erro ao atualizar item';
+      toast.error(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [endpoint, fetchData]);
+  
+  const remove = useCallback(async (id: string) => {
+    try {
+      setLoading(true);
+      
+      const response = await apiService.delete(`${endpoint}/${id}`);
+      
+      if (response.data.success) {
+        await fetchData(); // Refresh data
+        toast.success('Item removido com sucesso!');
+      } else {
+        throw new Error(response.data.message);
+      }
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || 'Erro ao remover item';
+      toast.error(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [endpoint, fetchData]);
+  
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+  
+  return { 
+    data, 
+    loading, 
+    error, 
+    refresh: fetchData, 
+    create, 
+    update, 
+    remove 
+  };
+}
+```
+
+## 🏪 Zustand Store Template
+```typescript
+import { create } from 'zustand';
+import { apiService } from '@/services/api';
+
+interface ResourceItem {
+  id: string;
+  name: string;
+  description?: string;
+  status: 'active' | 'inactive';
+  createdAt: string;
+  updatedAt?: string;
+}
+
+interface ResourceState {
+  // State
+  items: ResourceItem[];
+  selectedItem: ResourceItem | null;
+  loading: boolean;
+  error: string | null;
+  
+  // Actions
+  fetchItems: () => Promise<void>;
+  createItem: (data: Omit<ResourceItem, 'id' | 'createdAt'>) => Promise<void>;
+  updateItem: (id: string, data: Partial<ResourceItem>) => Promise<void>;
+  deleteItem: (id: string) => Promise<void>;
+  selectItem: (item: ResourceItem | null) => void;
+  clearError: () => void;
+}
+
+export const useResourceStore = create<ResourceState>((set, get) => ({
+  // Initial state
+  items: [],
+  selectedItem: null,
+  loading: false,
+  error: null,
+  
+  // Actions
+  fetchItems: async () => {
+    try {
+      set({ loading: true, error: null });
+      
+      const response = await apiService.get('/api/v1/resources');
+      
+      if (response.data.success) {
+        set({ items: response.data.data, loading: false });
+      } else {
+        throw new Error(response.data.message);
+      }
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'Erro ao carregar itens';
+      set({ error: errorMessage, loading: false });
+    }
+  },
+  
+  createItem: async (data) => {
+    try {
+      set({ loading: true, error: null });
+      
+      const response = await apiService.post('/api/v1/resources', data);
+      
+      if (response.data.success) {
+        const newItem = response.data.data;
+        set(state => ({ 
+          items: [...state.items, newItem],
+          loading: false 
+        }));
+      } else {
+        throw new Error(response.data.message);
+      }
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'Erro ao criar item';
+      set({ error: errorMessage, loading: false });
+      throw error;
+    }
+  },
+  
+  updateItem: async (id, data) => {
+    try {
+      set({ loading: true, error: null });
+      
+      const response = await apiService.put(`/api/v1/resources/${id}`, data);
+      
+      if (response.data.success) {
+        const updatedItem = response.data.data;
+        set(state => ({
+          items: state.items.map(item => 
+            item.id === id ? updatedItem : item
+          ),
+          selectedItem: state.selectedItem?.id === id ? updatedItem : state.selectedItem,
+          loading: false
+        }));
+      } else {
+        throw new Error(response.data.message);
+      }
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'Erro ao atualizar item';
+      set({ error: errorMessage, loading: false });
+      throw error;
+    }
+  },
+  
+  deleteItem: async (id) => {
+    try {
+      set({ loading: true, error: null });
+      
+      const response = await apiService.delete(`/api/v1/resources/${id}`);
+      
+      if (response.data.success) {
+        set(state => ({
+          items: state.items.filter(item => item.id !== id),
+          selectedItem: state.selectedItem?.id === id ? null : state.selectedItem,
+          loading: false
+        }));
+      } else {
+        throw new Error(response.data.message);
+      }
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'Erro ao deletar item';
+      set({ error: errorMessage, loading: false });
+      throw error;
+    }
+  },
+  
+  selectItem: (item) => {
+    set({ selectedItem: item });
+  },
+  
+  clearError: () => {
+    set({ error: null });
+  }
+}));
+```
+
+## 📝 Formulário Template (React Hook Form + Zod)
+```typescript
+'use client';
+
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Card } from '@/components/ui/card';
+import { toast } from 'react-hot-toast';
+
+// Validation schema
+const formSchema = z.object({
+  name: z.string().min(1, 'Nome é obrigatório'),
+  email: z.string().email('Email inválido'),
+  description: z.string().optional(),
+});
+
+type FormData = z.infer<typeof formSchema>;
+
+interface ResourceFormProps {
+  initialData?: Partial<FormData>;
+  onSubmit: (data: FormData) => Promise<void>;
+  onCancel?: () => void;
+  loading?: boolean;
+}
+
+export default function ResourceForm({
+  initialData,
+  onSubmit,
+  onCancel,
+  loading = false
+}: ResourceFormProps) {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset
+  } = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: initialData
+  });
+  
+  const handleFormSubmit = async (data: FormData) => {
+    try {
+      await onSubmit(data);
+      toast.success('Dados salvos com sucesso!');
+      reset();
+    } catch (error: any) {
+      toast.error(error.message || 'Erro ao salvar dados');
+    }
+  };
+  
+  const isLoading = loading || isSubmitting;
+  
+  return (
+    <Card className="p-6">
+      <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="name">Nome *</Label>
+          <Input
+            id="name"
+            {...register('name')}
+            placeholder="Digite o nome"
+            className={errors.name ? 'border-red-500' : ''}
+            disabled={isLoading}
+          />
+          {errors.name && (
+            <p className="text-sm text-red-600">{errors.name.message}</p>
+          )}
+        </div>
+        
+        <div className="space-y-2">
+          <Label htmlFor="email">Email *</Label>
+          <Input
+            id="email"
+            type="email"
+            {...register('email')}
+            placeholder="Digite o email"
+            className={errors.email ? 'border-red-500' : ''}
+            disabled={isLoading}
+          />
+          {errors.email && (
+            <p className="text-sm text-red-600">{errors.email.message}</p>
+          )}
+        </div>
+        
+        <div className="space-y-2">
+          <Label htmlFor="description">Descrição</Label>
+          <Textarea
+            id="description"
+            {...register('description')}
+            placeholder="Digite a descrição (opcional)"
+            rows={3}
+            disabled={isLoading}
+          />
+          {errors.description && (
+            <p className="text-sm text-red-600">{errors.description.message}</p>
+          )}
+        </div>
+        
+        <div className="flex gap-3 pt-4">
+          <Button
+            type="submit"
+            disabled={isLoading}
+            className="bg-accent-green hover:bg-accent-green/90"
+          >
+            {isLoading ? 'Salvando...' : 'Salvar'}
+          </Button>
+          
+          {onCancel && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onCancel}
+              disabled={isLoading}
+            >
+              Cancelar
+            </Button>
+          )}
+        </div>
+      </form>
+    </Card>
+  );
+}
+```
+
+## 📊 Componente de Lista Template
+```typescript
+'use client';
+
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Pencil, Trash2, Plus } from 'phosphor-react';
+
+interface ListItem {
+  id: string;
+  name: string;
+  description?: string;
+  status: 'active' | 'inactive';
+  createdAt: string;
+}
+
+interface ResourceListProps {
+  items: ListItem[];
+  loading: boolean;
+  onEdit: (item: ListItem) => void;
+  onDelete: (id: string) => void;
+  onCreate: () => void;
+}
+
+export default function ResourceList({
+  items,
+  loading,
+  onEdit,
+  onDelete,
+  onCreate
+}: ResourceListProps) {
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  
+  const handleDelete = async (id: string) => {
+    if (deletingId) return;
+    
+    if (!confirm('Tem certeza que deseja excluir este item?')) {
+      return;
+    }
+    
+    try {
+      setDeletingId(id);
+      await onDelete(id);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+  
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <div className="h-8 bg-gray-200 rounded w-48 animate-pulse"></div>
+          <div className="h-10 bg-gray-200 rounded w-32 animate-pulse"></div>
+        </div>
+        
+        {[...Array(3)].map((_, i) => (
+          <Card key={i} className="p-4">
+            <div className="animate-pulse space-y-3">
+              <div className="h-6 bg-gray-200 rounded w-3/4"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+              <div className="flex gap-2">
+                <div className="h-8 bg-gray-200 rounded w-20"></div>
+                <div className="h-8 bg-gray-200 rounded w-16"></div>
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+  
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-gray-900">
+          Lista de Recursos ({items.length})
+        </h2>
+        
+        <Button 
+          onClick={onCreate}
+          className="bg-accent-green hover:bg-accent-green/90"
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Novo Item
+        </Button>
+      </div>
+      
+      {items.length === 0 ? (
+        <Card className="p-8 text-center">
+          <p className="text-gray-500 mb-4">Nenhum item encontrado</p>
+          <Button 
+            onClick={onCreate}
+            variant="outline"
+          >
+            Criar primeiro item
+          </Button>
+        </Card>
+      ) : (
+        <div className="grid gap-4">
+          {items.map((item) => (
+            <Card key={item.id} className="p-4 hover:shadow-md transition-shadow">
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <h3 className="font-semibold text-lg text-gray-900">
+                      {item.name}
+                    </h3>
+                    
+                    <Badge 
+                      variant={item.status === 'active' ? 'default' : 'secondary'}
+                    >
+                      {item.status === 'active' ? 'Ativo' : 'Inativo'}
+                    </Badge>
+                  </div>
+                  
+                  {item.description && (
+                    <p className="text-gray-600 mb-2">{item.description}</p>
+                  )}
+                  
+                  <p className="text-sm text-gray-500">
+                    Criado em: {new Date(item.createdAt).toLocaleDateString('pt-BR')}
+                  </p>
+                </div>
+                
+                <div className="flex gap-2 ml-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onEdit(item)}
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </Button>
+                  
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleDelete(item.id)}
+                    disabled={deletingId === item.id}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+## 🧪 Teste de Componente Template
+```typescript
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { vi } from 'vitest';
+import ComponentName from './ComponentName';
+
+// Mock das dependências
+vi.mock('react-hot-toast', () => ({
+  toast: {
+    success: vi.fn(),
+    error: vi.fn(),
+  }
+}));
+
+describe('ComponentName', () => {
+  const mockProps = {
+    // Props mockadas aqui
+  };
+  
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+  
+  it('deve renderizar corretamente', () => {
+    render(<ComponentName {...mockProps} />);
+    
+    expect(screen.getByText('Título do Componente')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /ação/i })).toBeInTheDocument();
+  });
+  
+  it('deve executar ação quando botão for clicado', async () => {
+    const mockAction = vi.fn().mockResolvedValue(undefined);
+    
+    render(<ComponentName {...mockProps} onAction={mockAction} />);
+    
+    const button = screen.getByRole('button', { name: /ação/i });
+    fireEvent.click(button);
+    
+    await waitFor(() => {
+      expect(mockAction).toHaveBeenCalledTimes(1);
+    });
+  });
+  
+  it('deve mostrar loading durante ação', async () => {
+    const mockAction = vi.fn().mockImplementation(
+      () => new Promise(resolve => setTimeout(resolve, 100))
+    );
+    
+    render(<ComponentName {...mockProps} onAction={mockAction} />);
+    
+    const button = screen.getByRole('button', { name: /ação/i });
+    fireEvent.click(button);
+    
+    expect(screen.getByText('Carregando...')).toBeInTheDocument();
+    
+    await waitFor(() => {
+      expect(screen.queryByText('Carregando...')).not.toBeInTheDocument();
+    });
+  });
+  
+  it('deve mostrar erro quando ação falhar', async () => {
+    const mockAction = vi.fn().mockRejectedValue(new Error('Erro de teste'));
+    
+    render(<ComponentName {...mockProps} onAction={mockAction} />);
+    
+    const button = screen.getByRole('button', { name: /ação/i });
+    fireEvent.click(button);
+    
+    await waitFor(() => {
+      expect(screen.getByText(/erro: erro de teste/i)).toBeInTheDocument();
+    });
+  });
+});
+```
+
+## 🎨 Classe CSS Customizada Template
+```css
+/* Componente Card customizado */
+.card-base {
+  @apply bg-card-bg border border-border-primary rounded-2xl shadow-sm;
+  @apply transition-all duration-200 hover:shadow-md;
+}
+
+.card-hover {
+  @apply hover:bg-card-bg/80 hover:border-border-secondary;
+}
+
+/* Loading skeleton */
+.skeleton {
+  @apply animate-pulse bg-gray-200 rounded;
+}
+
+.skeleton-text {
+  @apply skeleton h-4;
+}
+
+.skeleton-title {
+  @apply skeleton h-6;
+}
+
+.skeleton-avatar {
+  @apply skeleton w-10 h-10 rounded-full;
+}
+
+/* Status badges */
+.status-active {
+  @apply bg-success/10 text-success border-success/20;
+}
+
+.status-inactive {
+  @apply bg-gray-100 text-gray-600 border-gray-200;
+}
+
+.status-pending {
+  @apply bg-warning/10 text-warning border-warning/20;
+}
+
+/* Button variants customizados */
+.btn-primary {
+  @apply bg-accent-green hover:bg-accent-green/90 text-white;
+  @apply transition-colors duration-200;
+}
+
+.btn-secondary {
+  @apply bg-accent-blue hover:bg-accent-blue/90 text-white;
+  @apply transition-colors duration-200;
+}
+
+.btn-danger {
+  @apply bg-error hover:bg-error/90 text-white;
+  @apply transition-colors duration-200;
+}
+```

@@ -1,0 +1,344 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Regras Unificadas - Sistema Finnantech V2
+
+## 1. CONTEXTO GERAL DO PROJETO
+
+### 1.1. Visão Geral
+O **Finnantech V2** é um sistema de controle financeiro multi-usuário integrado com Open Banking, desenvolvido para auxiliar pessoas físicas no gerenciamento inteligente de suas finanças. Combina automação, inteligência artificial e interface moderna para oferecer experiência superior de controle financeiro.
+
+### 1.2. Objetivos Principais
+- Automatizar coleta e categorização de transações financeiras
+- Fornecer insights inteligentes sobre padrões de gastos
+- Simplificar controle financeiro através de interface intuitiva
+- Integrar-se nativamente com Open Banking brasileiro
+
+---
+
+## 2. STACK TECNOLÓGICO OBRIGATÓRIO
+
+### 2.1. Backend (Java Spring Boot)
+- **Framework**: Spring Boot 3.2+
+- **Linguagem**: Java 17+ (LTS)
+- **Build Tool**: Maven
+- **Banco de Dados**: MySQL 8.0+ / H2 (desenvolvimento)
+- **ORM**: Spring Data JPA + Hibernate
+- **Autenticação**: Spring Security + JWT + OAuth2
+- **Validação**: Bean Validation (JSR-303)
+- **Documentação API**: OpenAPI 3.0 (SpringDoc)
+- **Cache**: Redis
+- **Mensageria**: RabbitMQ ou Apache Kafka
+- **Monitoramento**: Spring Boot Actuator + Micrometer
+
+### 2.2. Frontend (React Separado)
+- **Framework**: React 18+ com TypeScript
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS
+- **Componentes UI**: Shadcn/ui como base
+- **Estado Global**: Zustand
+- **Roteamento**: React Router v6
+- **Formulários**: React Hook Form + Zod
+- **HTTP Client**: Axios com interceptors
+- **Gráficos**: Recharts
+- **Ícones**: Phosphor Icons
+- **Notificações**: React Hot Toast
+- **Testes**: Vitest + Testing Library
+
+---
+
+## 3. DESIGN SYSTEM E UI/UX OBRIGATÓRIO
+
+### 3.1. Paleta de Cores (Usar SEMPRE)
+```css
+:root {
+    /* Background */
+    --bg-primary: #0a0a0b;
+    --bg-secondary: #161618;
+    --card-bg: #1e1e22;
+    
+    /* Text */
+    --text-primary: #f0f0f0;
+    --text-secondary: #a0a0a0;
+    --text-muted: #6b7280;
+    
+    /* Brand Colors */
+    --accent-green: #10b981;      /* Primary */
+    --accent-blue: #3b82f6;       /* Secondary */
+    --accent-pink: #f178b6;       /* Accent */
+    
+    /* Status Colors */
+    --success: #059669;
+    --warning: #f59e0b;
+    --error: #ef4444;
+    --info: #0ea5e9;
+    
+    /* Borders */
+    --border-primary: #333336;
+    --border-secondary: #27272a;
+}
+```
+
+### 3.2. Tipografia Obrigatória
+- **Fonte**: Inter (Google Fonts)
+- **Pesos**: 400, 500, 600, 700, 800
+- **Escala**: 0.875rem, 1rem, 1.125rem, 1.25rem, 1.5rem, 2rem, 3rem
+
+---
+
+## 4. REGRAS DE DESENVOLVIMENTO BACKEND
+
+### 4.1. Estrutura de Controllers
+```java
+@RestController
+@RequestMapping("/api/v1/transactions")
+@CrossOrigin(origins = "${app.frontend.url}")
+@Validated
+public class TransactionController {
+    
+    private final TransactionService transactionService;
+    
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<TransactionDTO>>> getTransactions(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        // Implementação
+    }
+}
+```
+
+### 4.2. Padrão de Response Obrigatório
+```java
+public class ApiResponse<T> {
+    private boolean success;
+    private T data;
+    private String message;
+    private String errorCode;
+    private LocalDateTime timestamp;
+    
+    // Construtores, getters, setters
+}
+```
+
+---
+
+## 5. REGRAS DE DESENVOLVIMENTO FRONTEND
+
+### 5.1. Estrutura de Componentes React
+```typescript
+interface TransactionCardProps {
+  transaction: Transaction;
+  onEdit?: (id: string) => void;
+  onDelete?: (id: string) => void;
+}
+
+export function TransactionCard({ 
+  transaction, 
+  onEdit, 
+  onDelete 
+}: TransactionCardProps) {
+  // Hooks primeiro
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // Handlers
+  const handleEdit = useCallback(() => {
+    onEdit?.(transaction.id);
+  }, [transaction.id, onEdit]);
+  
+  // Early returns
+  if (!transaction) return null;
+  
+  return (
+    <div className="card-base p-6 hover:bg-card-hover transition-colors">
+      {/* JSX organizado */}
+    </div>
+  );
+}
+```
+
+### 5.2. Gerenciamento de Estado (Zustand)
+```typescript
+interface TransactionStore {
+  transactions: Transaction[];
+  isLoading: boolean;
+  error: string | null;
+  
+  fetchTransactions: () => Promise<void>;
+  addTransaction: (transaction: TransactionInput) => Promise<void>;
+  updateTransaction: (id: string, data: Partial<Transaction>) => Promise<void>;
+  deleteTransaction: (id: string) => Promise<void>;
+}
+
+export const useTransactionStore = create<TransactionStore>((set, get) => ({
+  transactions: [],
+  isLoading: false,
+  error: null,
+  
+  fetchTransactions: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await transactionService.getAll();
+      set({ transactions: response.data, isLoading: false });
+    } catch (error) {
+      set({ error: error.message, isLoading: false });
+    }
+  },
+  
+  // outros métodos...
+}));
+```
+
+---
+
+## 6. REGRAS DE SEGURANÇA E COMPLIANCE
+
+### 6.1. Autenticação e Autorização
+- **JWT** com expiração de 15 minutos
+- **Refresh Token** com expiração de 7 dias
+- **2FA** obrigatório para operações sensíveis
+- **OAuth2** com Google e Facebook
+- **Rate Limiting**: 100 requests/min por IP
+
+### 6.2. Dados Sensíveis
+- **Criptografia AES-256** para tokens Open Banking
+- **bcrypt** com salt 12+ para senhas
+- **Mascaramento** de dados sensíveis em logs
+- **HTTPS** obrigatório em produção
+- **CORS** configurado apenas para domínios autorizados
+
+---
+
+## 7. REGRAS DE TESTES ORIENTADOS A REGRAS DE NEGÓCIO
+
+### 7.1. Princípios Fundamentais ⚠️ OBRIGATÓRIO
+
+#### Testes Devem Validar Comportamentos, Não Implementação
+```java
+// ❌ ERRADO - Testa implementação
+@Test
+void shouldCallRepositorySaveMethod() {
+    transactionService.createTransaction(input);
+    verify(transactionRepository).save(any(Transaction.class));
+}
+
+// ✅ CORRETO - Testa regra de negócio
+@Test
+void shouldCreateTransactionWithCorrectCalculatedFields() {
+    // Given
+    var input = CreateTransactionRequest.builder()
+        .amount(new BigDecimal("100.50"))
+        .description("Compra supermercado")
+        .categoryId("groceries-id")
+        .build();
+    
+    // When
+    var result = transactionService.createTransaction(input);
+    
+    // Then
+    assertThat(result.getAmount()).isEqualTo(new BigDecimal("100.50"));
+    assertThat(result.getType()).isEqualTo(TransactionType.EXPENSE);
+    assertThat(result.getStatus()).isEqualTo(TransactionStatus.COMPLETED);
+    assertThat(result.getCreatedAt()).isNotNull();
+}
+```
+
+### 7.2. Cobertura e Qualidade
+- **Cobertura mínima**: 80% de linhas de código
+- **Cobertura de branches**: 70% mínimo
+- **Testes de regras críticas**: 100% (transações, autenticação, Open Banking)
+
+---
+
+## 8. REGRAS DE PERFORMANCE
+
+### 8.1. Backend Performance
+- **Connection Pool**: 20 conexões máximo
+- **Cache Redis**: TTL de 5 minutos para dados frequentes
+- **Paginação**: Máximo 50 itens por página
+- **Query optimization**: N+1 queries proibidas
+
+### 8.2. Frontend Performance
+- **Bundle size**: < 500KB inicial
+- **Lazy loading**: Componentes e rotas
+- **Memoização**: React.memo, useMemo, useCallback
+- **Image optimization**: WebP + lazy loading
+
+---
+
+## 9. COMANDOS E SCRIPTS OBRIGATÓRIOS
+
+### 9.1. Backend (Maven)
+```bash
+# Desenvolvimento
+cd backend && set -a && source .env && set +a && mvn spring-boot:run
+
+# Testes
+./mvnw test
+./mvnw test -Dtest=TransactionServiceTest
+
+# Build
+./mvnw clean package -DskipTests
+```
+
+### 9.2. Frontend (npm)
+```bash
+# Desenvolvimento
+npm run dev
+
+# Build
+npm run build
+npm run preview
+
+# Testes
+npm run test
+npm run test:coverage
+
+# Linting
+npm run lint
+npm run type-check
+```
+
+---
+
+## 10. REGRAS DE CONDUTA FINAL
+
+### ⚠️ OBRIGATÓRIAS - NUNCA QUEBRAR:
+
+1. **SEMPRE** seguir o schema de banco definido
+2. **SEMPRE** implementar validação completa (backend + frontend)
+3. **SEMPRE** usar tipos TypeScript no frontend
+4. **SEMPRE** implementar tratamento de erro
+5. **SEMPRE** seguir design system exatamente
+6. **SEMPRE** implementar loading states
+7. **SEMPRE** fazer logs de auditoria para operações sensíveis
+8. **SEMPRE** criptografar dados sensíveis
+9. **SEMPRE** implementar testes que validem regras de negócio
+10. **SEMPRE** documentar APIs com OpenAPI
+11. **SEMPRE** escrever testes que validem comportamentos, não implementação
+12. **SEMPRE** criar testes resilientes a mudanças de código
+13. **SEMPRE** responder em Português
+14. **SEMPRE** usar variáveis de ambiente para configurações sensíveis
+
+### 🚫 PROIBIDO - NUNCA FAZER:
+
+1. **NUNCA** expor dados sensíveis em logs
+2. **NUNCA** commitar secrets no código
+3. **NUNCA** fazer queries N+1
+4. **NUNCA** ignorar validação de entrada
+5. **NUNCA** quebrar responsividade mobile
+6. **NUNCA** usar componentes sem TypeScript
+7. **NUNCA** armazenar senhas em plain text
+8. **NUNCA** fazer deploy sem testes passando
+9. **NUNCA** ignorar erros silenciosamente
+10. **NUNCA** implementar sem considerar performance
+11. **NUNCA** escrever testes apenas para cobertura
+12. **NUNCA** criar testes que dependem de implementação específica
+13. **NUNCA** versionar arquivos target/ ou node_modules/
+14. **NUNCA** incluir credenciais em arquivos de configuração
+
+---
+
+**🎯 IMPORTANTE**: Este documento é a **única fonte da verdade** para o desenvolvimento do Finnantech V2. Qualquer desvio deve ser justificado tecnicamente e documentado. O sucesso do projeto depende da consistência e qualidade implementada seguindo estas diretrizes.

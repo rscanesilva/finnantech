@@ -1,5 +1,42 @@
 ---
-description:
-globs:
+description: 
+globs: frontend/*,*.tsx
 alwaysApply: false
 ---
+# Frontend Development Standards
+
+## ⚛️ Next.js & React
+- App Router (não Pages Router)
+- Server Components quando possível
+- Client Components apenas quando necessário ('use client')
+
+## 🎨 Styling & UI
+- Tailwind CSS para styling
+- CSS modules para componentes específicos
+- Design system consistente
+
+## 🔗 API Integration
+- Axios para requisições HTTP
+- Hooks customizados para lógica reutilizável
+- Tratamento de erros padronizado
+
+## 📋 Comando para Execução
+```bash
+cd frontend
+npm run dev
+```
+
+## 🏗️ Estrutura de Componentes
+- Componentes em PascalCase
+- Props interfaces bem definidas
+- Separação de lógica e apresentação
+
+## 🔒 Autenticação
+- Context API para estado de autenticação
+- JWT tokens via cookies
+- Proteção de rotas
+
+## 📱 Responsividade
+- Mobile-first design
+- Breakpoints padronizados do Tailwind
+- Testes em diferentes tamanhos de tela

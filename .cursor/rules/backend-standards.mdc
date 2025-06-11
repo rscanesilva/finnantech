@@ -1,6 +1,6 @@
 ---
 description: 
-globs: 
+globs: backend/*,*.java
 alwaysApply: false
 ---
 # Backend Development Standards

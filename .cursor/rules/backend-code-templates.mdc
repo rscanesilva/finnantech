@@ -1,0 +1,388 @@
+---
+description: 
+globs: backend/*,*.java
+alwaysApply: false
+---
+# Templates de Código - Backend Java/Spring Boot
+
+## 🎯 Controller REST Template
+```java
+@RestController
+@RequestMapping("/api/v1/resource")
+@CrossOrigin(origins = {"${app.frontend.url}"})
+@Validated
+@Tag(name = "Resource", description = "API para gerenciamento de recursos")
+public class ResourceController {
+    
+    private final ResourceService resourceService;
+    private final JwtServiceAdapter jwtServiceAdapter;
+    
+    public ResourceController(ResourceService resourceService, JwtServiceAdapter jwtServiceAdapter) {
+        this.resourceService = resourceService;
+        this.jwtServiceAdapter = jwtServiceAdapter;
+    }
+    
+    @GetMapping
+    @Operation(summary = "Listar recursos do usuário")
+    public ResponseEntity<ApiResponse<List<ResourceResponse>>> getResources(
+            HttpServletRequest request,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        try {
+            String userId = extractUserIdFromRequest(request);
+            List<ResourceResponse> resources = resourceService.findByUserId(userId, page, size);
+            return ResponseEntity.ok(ApiResponse.success(resources));
+        } catch (BusinessException e) {
+            return ResponseEntity.badRequest()
+                .body(ApiResponse.error(e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error("Erro interno do servidor"));
+        }
+    }
+    
+    @PostMapping
+    @Operation(summary = "Criar novo recurso")
+    public ResponseEntity<ApiResponse<ResourceResponse>> createResource(
+            @Valid @RequestBody CreateResourceRequest request,
+            HttpServletRequest httpRequest) {
+        try {
+            String userId = extractUserIdFromRequest(httpRequest);
+            ResourceResponse resource = resourceService.create(request, userId);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success(resource));
+        } catch (BusinessException e) {
+            return ResponseEntity.badRequest()
+                .body(ApiResponse.error(e.getMessage()));
+        }
+    }
+    
+    private String extractUserIdFromRequest(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            return jwtServiceAdapter.extractUserId(token);
+        }
+        throw new UnauthorizedException("Token não encontrado");
+    }
+}
+```
+
+## 🔵 Domain Entity Template
+```java
+@Entity
+@Table(name = "resources")
+public class Resource {
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    @Column(name = "user_id", nullable = false)
+    private String userId;
+    
+    @Column(name = "name", nullable = false, length = 255)
+    @NotBlank(message = "Nome é obrigatório")
+    private String name;
+    
+    @Column(name = "description", length = 1000)
+    private String description;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private ResourceStatus status;
+    
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
+    
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+    
+    // Constructors
+    protected Resource() {
+        // JPA constructor
+    }
+    
+    public Resource(String userId, String name, String description) {
+        this.userId = userId;
+        this.name = name;
+        this.description = description;
+        this.status = ResourceStatus.ACTIVE;
+        this.createdAt = LocalDateTime.now();
+    }
+    
+    // Business methods
+    public void updateName(String newName) {
+        if (newName == null || newName.trim().isEmpty()) {
+            throw new BusinessException("Nome não pode ser vazio");
+        }
+        this.name = newName;
+        this.updatedAt = LocalDateTime.now();
+    }
+    
+    public void deactivate() {
+        if (this.status == ResourceStatus.INACTIVE) {
+            throw new BusinessException("Recurso já está inativo");
+        }
+        this.status = ResourceStatus.INACTIVE;
+        this.updatedAt = LocalDateTime.now();
+    }
+    
+    // Getters and Setters
+    public Long getId() { return id; }
+    public String getUserId() { return userId; }
+    public String getName() { return name; }
+    public String getDescription() { return description; }
+    public ResourceStatus getStatus() { return status; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+}
+```
+
+## 🟡 Service/Use Case Template
+```java
+@Service
+@Transactional
+public class ResourceService {
+    
+    private final ResourceRepository resourceRepository;
+    private final ResourceMapper resourceMapper;
+    
+    public ResourceService(ResourceRepository resourceRepository, ResourceMapper resourceMapper) {
+        this.resourceRepository = resourceRepository;
+        this.resourceMapper = resourceMapper;
+    }
+    
+    @Transactional(readOnly = true)
+    public List<ResourceResponse> findByUserId(String userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Resource> resources = resourceRepository.findByUserIdAndStatusOrderByCreatedAtDesc(
+            userId, ResourceStatus.ACTIVE, pageable);
+        
+        return resources.getContent().stream()
+            .map(resourceMapper::toResponse)
+            .collect(Collectors.toList());
+    }
+    
+    public ResourceResponse create(CreateResourceRequest request, String userId) {
+        // Validation
+        validateCreateRequest(request, userId);
+        
+        // Business logic
+        Resource resource = new Resource(userId, request.getName(), request.getDescription());
+        
+        // Persistence
+        Resource savedResource = resourceRepository.save(resource);
+        
+        return resourceMapper.toResponse(savedResource);
+    }
+    
+    public ResourceResponse update(Long resourceId, UpdateResourceRequest request, String userId) {
+        Resource resource = resourceRepository.findByIdAndUserId(resourceId, userId)
+            .orElseThrow(() -> new ResourceNotFoundException("Recurso não encontrado"));
+        
+        // Business logic
+        resource.updateName(request.getName());
+        if (request.getDescription() != null) {
+            resource.setDescription(request.getDescription());
+        }
+        
+        Resource updatedResource = resourceRepository.save(resource);
+        return resourceMapper.toResponse(updatedResource);
+    }
+    
+    private void validateCreateRequest(CreateResourceRequest request, String userId) {
+        if (resourceRepository.existsByUserIdAndName(userId, request.getName())) {
+            throw new BusinessException("Já existe um recurso com este nome");
+        }
+    }
+}
+```
+
+## 🟢 Repository Interface Template
+```java
+@Repository
+public interface ResourceRepository extends JpaRepository<Resource, Long> {
+    
+    Page<Resource> findByUserIdAndStatusOrderByCreatedAtDesc(
+        String userId, 
+        ResourceStatus status, 
+        Pageable pageable
+    );
+    
+    Optional<Resource> findByIdAndUserId(Long id, String userId);
+    
+    boolean existsByUserIdAndName(String userId, String name);
+    
+    @Query("SELECT COUNT(r) FROM Resource r WHERE r.userId = :userId AND r.status = :status")
+    long countByUserIdAndStatus(@Param("userId") String userId, @Param("status") ResourceStatus status);
+    
+    @Modifying
+    @Query("UPDATE Resource r SET r.status = :status, r.updatedAt = :updatedAt WHERE r.userId = :userId")
+    void updateStatusByUserId(
+        @Param("userId") String userId, 
+        @Param("status") ResourceStatus status,
+        @Param("updatedAt") LocalDateTime updatedAt
+    );
+}
+```
+
+## 🗂️ DTO Templates
+
+### Request DTO
+```java
+public class CreateResourceRequest {
+    
+    @NotBlank(message = "Nome é obrigatório")
+    @Size(max = 255, message = "Nome deve ter no máximo 255 caracteres")
+    private String name;
+    
+    @Size(max = 1000, message = "Descrição deve ter no máximo 1000 caracteres")
+    private String description;
+    
+    // Constructors
+    public CreateResourceRequest() {}
+    
+    public CreateResourceRequest(String name, String description) {
+        this.name = name;
+        this.description = description;
+    }
+    
+    // Getters and Setters
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+}
+```
+
+### Response DTO
+```java
+public class ResourceResponse {
+    
+    private Long id;
+    private String name;
+    private String description;
+    private ResourceStatus status;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    
+    // Constructors
+    public ResourceResponse() {}
+    
+    public ResourceResponse(Long id, String name, String description, 
+                           ResourceStatus status, LocalDateTime createdAt, 
+                           LocalDateTime updatedAt) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.status = status;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+    
+    // Getters and Setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+    public ResourceStatus getStatus() { return status; }
+    public void setStatus(ResourceStatus status) { this.status = status; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+}
+```
+
+## 🧪 Test Template
+```java
+@ExtendWith(MockitoExtension.class)
+class ResourceServiceTest {
+    
+    @Mock
+    private ResourceRepository resourceRepository;
+    
+    @Mock
+    private ResourceMapper resourceMapper;
+    
+    @InjectMocks
+    private ResourceService resourceService;
+    
+    @Test
+    @DisplayName("Deve criar recurso com sucesso")
+    void shouldCreateResourceSuccessfully() {
+        // Given
+        String userId = "user-123";
+        CreateResourceRequest request = new CreateResourceRequest("Test Resource", "Description");
+        
+        Resource savedResource = new Resource(userId, request.getName(), request.getDescription());
+        savedResource.setId(1L);
+        
+        ResourceResponse expectedResponse = new ResourceResponse(
+            1L, "Test Resource", "Description", ResourceStatus.ACTIVE, 
+            LocalDateTime.now(), null
+        );
+        
+        when(resourceRepository.existsByUserIdAndName(userId, request.getName()))
+            .thenReturn(false);
+        when(resourceRepository.save(any(Resource.class)))
+            .thenReturn(savedResource);
+        when(resourceMapper.toResponse(savedResource))
+            .thenReturn(expectedResponse);
+        
+        // When
+        ResourceResponse result = resourceService.create(request, userId);
+        
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).isEqualTo(1L);
+        assertThat(result.getName()).isEqualTo("Test Resource");
+        
+        verify(resourceRepository).existsByUserIdAndName(userId, request.getName());
+        verify(resourceRepository).save(any(Resource.class));
+        verify(resourceMapper).toResponse(savedResource);
+    }
+    
+    @Test
+    @DisplayName("Deve lançar exceção quando nome já existe")
+    void shouldThrowExceptionWhenNameAlreadyExists() {
+        // Given
+        String userId = "user-123";
+        CreateResourceRequest request = new CreateResourceRequest("Existing Resource", "Description");
+        
+        when(resourceRepository.existsByUserIdAndName(userId, request.getName()))
+            .thenReturn(true);
+        
+        // When & Then
+        assertThatThrownBy(() -> resourceService.create(request, userId))
+            .isInstanceOf(BusinessException.class)
+            .hasMessage("Já existe um recurso com este nome");
+        
+        verify(resourceRepository).existsByUserIdAndName(userId, request.getName());
+        verify(resourceRepository, never()).save(any(Resource.class));
+    }
+}
+```
+
+## ⚙️ Configuration Template
+```java
+@Configuration
+@EnableJpaRepositories(basePackages = "com.finnantech.infrastructure.persistence")
+@EntityScan(basePackages = "com.finnantech.domain.entities")
+public class DatabaseConfig {
+    
+    @Bean
+    @ConfigurationProperties("spring.datasource")
+    public DataSource dataSource() {
+        return DataSourceBuilder.create().build();
+    }
+    
+    @Bean
+    public JpaTransactionManager transactionManager(EntityManagerFactory entityManagerFactory) {
+        return new JpaTransactionManager(entityManagerFactory);
+    }
+}
+```
