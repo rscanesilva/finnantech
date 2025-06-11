@@ -1,0 +1,129 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------< com.finnantech:finnantech-backend >------------------
+[INFO] Building finnantech-backend 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] >>> spring-boot:3.2.2:run (default-cli) > test-compile @ finnantech-backend >>>
+[INFO] 
+[INFO] --- jacoco:0.8.11:prepare-agent (default) @ finnantech-backend ---
+[INFO] argLine set to -javaagent:/Users/rafael.scane/.m2/repository/org/jacoco/org.jacoco.agent/0.8.11/org.jacoco.agent-0.8.11-runtime.jar=destfile=/Users/rafael.scane/Desktop/FinnantechV2/backend/target/jacoco.exec
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ finnantech-backend ---
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] Copying 2 resources from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ finnantech-backend ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ finnantech-backend ---
+[INFO] skip non existing resourceDirectory /Users/rafael.scane/Desktop/FinnantechV2/backend/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.11.0:testCompile (default-testCompile) @ finnantech-backend ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] <<< spring-boot:3.2.2:run (default-cli) < test-compile @ finnantech-backend <<<
+[INFO] 
+[INFO] 
+[INFO] --- spring-boot:3.2.2:run (default-cli) @ finnantech-backend ---
+[INFO] Attaching agents: []
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.2)
+
+2025-06-10T18:50:40.307-03:00  INFO 40487 --- [finnantech-backend] [           main] com.finnantech.FinnantechApplication     : Starting FinnantechApplication using Java 17.0.14 with PID 40487 (/Users/rafael.scane/Desktop/FinnantechV2/backend/target/classes started by rafael.scane in /Users/rafael.scane/Desktop/FinnantechV2/backend)
+2025-06-10T18:50:40.308-03:00 DEBUG 40487 --- [finnantech-backend] [           main] com.finnantech.FinnantechApplication     : Running with Spring Boot v3.2.2, Spring v6.1.3
+2025-06-10T18:50:40.309-03:00  INFO 40487 --- [finnantech-backend] [           main] com.finnantech.FinnantechApplication     : No active profile set, falling back to 1 default profile: "default"
+2025-06-10T18:50:41.011-03:00  INFO 40487 --- [finnantech-backend] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-06-10T18:50:41.069-03:00  INFO 40487 --- [finnantech-backend] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 51 ms. Found 4 JPA repository interfaces.
+2025-06-10T18:50:41.578-03:00  INFO 40487 --- [finnantech-backend] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-06-10T18:50:41.586-03:00  INFO 40487 --- [finnantech-backend] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-06-10T18:50:41.586-03:00  INFO 40487 --- [finnantech-backend] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.18]
+2025-06-10T18:50:41.630-03:00  INFO 40487 --- [finnantech-backend] [           main] o.a.c.c.C.[Tomcat].[localhost].[/api]    : Initializing Spring embedded WebApplicationContext
+2025-06-10T18:50:41.631-03:00  INFO 40487 --- [finnantech-backend] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1293 ms
+2025-06-10T18:50:41.773-03:00  INFO 40487 --- [finnantech-backend] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-06-10T18:50:41.915-03:00  INFO 40487 --- [finnantech-backend] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:9ff633b7-3315-4ba9-9cee-f4c471cabf01 user=SA
+2025-06-10T18:50:41.917-03:00  INFO 40487 --- [finnantech-backend] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-06-10T18:50:42.048-03:00  INFO 40487 --- [finnantech-backend] [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-06-10T18:50:42.082-03:00  INFO 40487 --- [finnantech-backend] [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.4.1.Final
+2025-06-10T18:50:42.104-03:00  INFO 40487 --- [finnantech-backend] [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-06-10T18:50:42.250-03:00  INFO 40487 --- [finnantech-backend] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-06-10T18:50:43.008-03:00  INFO 40487 --- [finnantech-backend] [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-06-10T18:50:43.020-03:00 DEBUG 40487 --- [finnantech-backend] [           main] org.hibernate.SQL                        : drop table if exists categories cascade 
+2025-06-10T18:50:43.021-03:00 DEBUG 40487 --- [finnantech-backend] [           main] org.hibernate.SQL                        : drop table if exists payment_methods cascade 
+2025-06-10T18:50:43.023-03:00 DEBUG 40487 --- [finnantech-backend] [           main] org.hibernate.SQL                        : drop table if exists transactions cascade 
+2025-06-10T18:50:43.023-03:00 DEBUG 40487 --- [finnantech-backend] [           main] org.hibernate.SQL                        : drop table if exists users cascade 
+2025-06-10T18:50:43.027-03:00 DEBUG 40487 --- [finnantech-backend] [           main] org.hibernate.SQL                        : create table categories (active boolean not null, is_system_default boolean not null, color varchar(7) not null, created_at timestamp(6) not null, updated_at timestamp(6) not null, id varchar(36) not null, user_id varchar(36), icon varchar(50), name varchar(100) not null, description TEXT, type varchar(255) not null check (type in ('RECEITA','DESPESA','INVESTIMENTO')), primary key (id))
+2025-06-10T18:50:43.028-03:00 DEBUG 40487 --- [finnantech-backend] [           main] org.hibernate.SQL                        : create table payment_methods (active boolean not null, card_closing_day integer check ((card_closing_day<=31) and (card_closing_day>=1)), card_due_day integer check ((card_due_day>=1) and (card_due_day<=31)), card_last_digits varchar(4), card_limit numeric(15,2), is_default boolean not null, card_expiry varchar(7), created_at timestamp(6) not null, updated_at timestamp(6) not null, id varchar(36) not null, user_id varchar(36) not null, card_brand varchar(50), name varchar(100) not null, description TEXT, type varchar(255) not null check (type in ('CARTAO_CREDITO','CARTAO_DEBITO','PIX','DINHEIRO','TRANSFERENCIA','BOLETO')), primary key (id))
+2025-06-10T18:50:43.030-03:00 DEBUG 40487 --- [finnantech-backend] [           main] org.hibernate.SQL                        : create table transactions (amount numeric(15,2) not null, currency varchar(3) not null, is_recurring boolean not null, transaction_date date not null, month_year varchar(7), created_at timestamp(6) not null, updated_at timestamp(6) not null, category_id varchar(36) not null, id varchar(36) not null, payment_method_id varchar(36), recurring_group_id varchar(36), user_id varchar(36) not null, merchant_category varchar(100), merchant_name varchar(150), description varchar(255) not null, external_id varchar(255), notes TEXT, status varchar(255) not null check (status in ('PENDENTE','CONFIRMADA','CANCELADA')), tags JSON, type varchar(255) not null check (type in ('RECEITA','DESPESA')), primary key (id))
+2025-06-10T18:50:43.032-03:00 DEBUG 40487 --- [finnantech-backend] [           main] org.hibernate.SQL                        : create table users (email_verified boolean not null, created_at timestamp(6) not null, updated_at timestamp(6) not null, provider varchar(20) not null check (provider in ('LOCAL','GOOGLE','FACEBOOK')), id varchar(36) not null, email varchar(100) not null unique, name varchar(100) not null, provider_id varchar(100), password_hash varchar(255), primary key (id))
+2025-06-10T18:50:43.033-03:00 DEBUG 40487 --- [finnantech-backend] [           main] org.hibernate.SQL                        : create index idx_categories_user_active on categories (user_id, active)
+2025-06-10T18:50:43.034-03:00 DEBUG 40487 --- [finnantech-backend] [           main] org.hibernate.SQL                        : create index idx_categories_type on categories (type)
+2025-06-10T18:50:43.034-03:00 DEBUG 40487 --- [finnantech-backend] [           main] org.hibernate.SQL                        : create index idx_categories_system_default on categories (is_system_default)
+2025-06-10T18:50:43.034-03:00 DEBUG 40487 --- [finnantech-backend] [           main] org.hibernate.SQL                        : create index idx_payment_methods_user on payment_methods (user_id)
+2025-06-10T18:50:43.035-03:00 DEBUG 40487 --- [finnantech-backend] [           main] org.hibernate.SQL                        : create index idx_payment_methods_type on payment_methods (type)
+2025-06-10T18:50:43.035-03:00 DEBUG 40487 --- [finnantech-backend] [           main] org.hibernate.SQL                        : create index idx_payment_methods_default on payment_methods (user_id, is_default)
+2025-06-10T18:50:43.035-03:00 DEBUG 40487 --- [finnantech-backend] [           main] org.hibernate.SQL                        : create index idx_transactions_user_date on transactions (user_id, transaction_date desc)
+2025-06-10T18:50:43.036-03:00 DEBUG 40487 --- [finnantech-backend] [           main] org.hibernate.SQL                        : create index idx_transactions_user_month on transactions (user_id, month_year desc)
+2025-06-10T18:50:43.036-03:00 DEBUG 40487 --- [finnantech-backend] [           main] org.hibernate.SQL                        : create index idx_transactions_category on transactions (category_id)
+2025-06-10T18:50:43.036-03:00 DEBUG 40487 --- [finnantech-backend] [           main] org.hibernate.SQL                        : create index idx_transactions_payment_method on transactions (payment_method_id)
+2025-06-10T18:50:43.037-03:00 DEBUG 40487 --- [finnantech-backend] [           main] org.hibernate.SQL                        : create index idx_transactions_type_date on transactions (type, transaction_date desc)
+2025-06-10T18:50:43.037-03:00 DEBUG 40487 --- [finnantech-backend] [           main] org.hibernate.SQL                        : create index idx_transactions_merchant on transactions (merchant_name)
+2025-06-10T18:50:43.037-03:00 DEBUG 40487 --- [finnantech-backend] [           main] org.hibernate.SQL                        : create index idx_transactions_recurring on transactions (user_id, is_recurring)
+2025-06-10T18:50:43.038-03:00 DEBUG 40487 --- [finnantech-backend] [           main] org.hibernate.SQL                        : create index idx_transactions_status on transactions (status)
+2025-06-10T18:50:43.038-03:00 DEBUG 40487 --- [finnantech-backend] [           main] org.hibernate.SQL                        : create index idx_transactions_user_type_date on transactions (user_id, type, transaction_date desc)
+2025-06-10T18:50:43.040-03:00  INFO 40487 --- [finnantech-backend] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-06-10T18:50:43.230-03:00  INFO 40487 --- [finnantech-backend] [           main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-06-10T18:50:43.507-03:00 DEBUG 40487 --- [finnantech-backend] [           main] c.f.i.security.JwtAuthenticationFilter   : Filter 'jwtAuthenticationFilter' configured for use
+2025-06-10T18:50:43.508-03:00 DEBUG 40487 --- [finnantech-backend] [           main] o.s.w.f.ServerHttpObservationFilter      : Filter 'webMvcObservationFilter' configured for use
+2025-06-10T18:50:43.803-03:00  WARN 40487 --- [finnantech-backend] [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-06-10T18:50:43.822-03:00 DEBUG 40487 --- [finnantech-backend] [           main] swordEncoderAuthenticationManagerBuilder : No authenticationProviders and no parentAuthenticationManager defined. Returning null.
+2025-06-10T18:50:43.928-03:00 DEBUG 40487 --- [finnantech-backend] [           main] s.w.s.m.m.a.RequestMappingHandlerMapping : 19 mappings in 'requestMappingHandlerMapping'
+2025-06-10T18:50:44.006-03:00 DEBUG 40487 --- [finnantech-backend] [           main] o.s.w.s.handler.SimpleUrlHandlerMapping  : Patterns [/webjars/**, /**, /swagger-ui*/*swagger-initializer.js, /swagger-ui*/**] in 'resourceHandlerMapping'
+2025-06-10T18:50:44.085-03:00  INFO 40487 --- [finnantech-backend] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 3 endpoint(s) beneath base path '/actuator'
+2025-06-10T18:50:44.136-03:00  INFO 40487 --- [finnantech-backend] [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@6b6477fb, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@5fb61d29, org.springframework.security.web.context.SecurityContextHolderFilter@579347a7, org.springframework.security.web.header.HeaderWriterFilter@2465e8be, org.springframework.web.filter.CorsFilter@6cee8f5d, org.springframework.security.web.authentication.logout.LogoutFilter@70fbab13, com.finnantech.infrastructure.security.JwtAuthenticationFilter@2d487df4, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@1c9f274d, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@4b7b0f85, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@20a46430, org.springframework.security.web.session.SessionManagementFilter@6407c1b3, org.springframework.security.web.access.ExceptionTranslationFilter@1b0c0b3e, org.springframework.security.web.access.intercept.AuthorizationFilter@12445241]
+2025-06-10T18:50:44.213-03:00 DEBUG 40487 --- [finnantech-backend] [           main] s.w.s.m.m.a.RequestMappingHandlerAdapter : ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2025-06-10T18:50:44.242-03:00 DEBUG 40487 --- [finnantech-backend] [           main] .m.m.a.ExceptionHandlerExceptionResolver : ControllerAdvice beans: 1 @ExceptionHandler, 1 ResponseBodyAdvice
+2025-06-10T18:50:44.752-03:00  INFO 40487 --- [finnantech-backend] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/api'
+2025-06-10T18:50:44.769-03:00  INFO 40487 --- [finnantech-backend] [           main] com.finnantech.FinnantechApplication     : Started FinnantechApplication in 4.763 seconds (process running for 5.012)
+2025-06-10T18:51:15.357-03:00  INFO 40487 --- [finnantech-backend] [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/api]    : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-06-10T18:51:15.357-03:00  INFO 40487 --- [finnantech-backend] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-06-10T18:51:15.358-03:00 DEBUG 40487 --- [finnantech-backend] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Detected StandardServletMultipartResolver
+2025-06-10T18:51:15.358-03:00 DEBUG 40487 --- [finnantech-backend] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Detected AcceptHeaderLocaleResolver
+2025-06-10T18:51:15.358-03:00 DEBUG 40487 --- [finnantech-backend] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Detected FixedThemeResolver
+2025-06-10T18:51:15.359-03:00 DEBUG 40487 --- [finnantech-backend] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Detected org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator@6c54bc3
+2025-06-10T18:51:15.360-03:00 DEBUG 40487 --- [finnantech-backend] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Detected org.springframework.web.servlet.support.SessionFlashMapManager@78a5c127
+2025-06-10T18:51:15.360-03:00 DEBUG 40487 --- [finnantech-backend] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : enableLoggingRequestDetails='false': request parameters and headers will be masked to prevent unsafe logging of potentially sensitive data
+2025-06-10T18:51:15.360-03:00  INFO 40487 --- [finnantech-backend] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 3 ms
+2025-06-10T18:51:15.384-03:00 DEBUG 40487 --- [finnantech-backend] [nio-8080-exec-1] o.s.security.web.FilterChainProxy        : Securing GET /h2-console
+2025-06-10T18:51:15.395-03:00 DEBUG 40487 --- [finnantech-backend] [nio-8080-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter  : Set SecurityContextHolder to anonymous SecurityContext
+2025-06-10T18:51:15.401-03:00 DEBUG 40487 --- [finnantech-backend] [nio-8080-exec-1] o.s.s.w.a.Http403ForbiddenEntryPoint     : Pre-authenticated entry point called. Rejecting access
+2025-06-10T18:51:15.407-03:00 DEBUG 40487 --- [finnantech-backend] [nio-8080-exec-1] o.s.security.web.FilterChainProxy        : Securing GET /error
+2025-06-10T18:51:15.409-03:00 DEBUG 40487 --- [finnantech-backend] [nio-8080-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter  : Set SecurityContextHolder to anonymous SecurityContext
+2025-06-10T18:51:15.409-03:00 DEBUG 40487 --- [finnantech-backend] [nio-8080-exec-1] o.s.s.w.a.Http403ForbiddenEntryPoint     : Pre-authenticated entry point called. Rejecting access
+2025-06-10T18:52:12.672-03:00  INFO 40487 --- [finnantech-backend] [ionShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-06-10T18:52:12.672-03:00 DEBUG 40487 --- [finnantech-backend] [ionShutdownHook] org.hibernate.SQL                        : drop table if exists categories cascade 
+2025-06-10T18:52:12.673-03:00 DEBUG 40487 --- [finnantech-backend] [ionShutdownHook] org.hibernate.SQL                        : drop table if exists payment_methods cascade 
+2025-06-10T18:52:12.673-03:00 DEBUG 40487 --- [finnantech-backend] [ionShutdownHook] org.hibernate.SQL                        : drop table if exists transactions cascade 
+2025-06-10T18:52:12.673-03:00 DEBUG 40487 --- [finnantech-backend] [ionShutdownHook] org.hibernate.SQL                        : drop table if exists users cascade 
+2025-06-10T18:52:12.675-03:00  INFO 40487 --- [finnantech-backend] [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-06-10T18:52:12.677-03:00  INFO 40487 --- [finnantech-backend] [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  01:34 min
+[INFO] Finished at: 2025-06-10T18:52:12-03:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.springframework.boot:spring-boot-maven-plugin:3.2.2:run (default-cli) on project finnantech-backend: Process terminated with exit code: 143 -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoExecutionException
