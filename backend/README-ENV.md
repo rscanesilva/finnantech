@@ -13,21 +13,56 @@ Este diretório contém um arquivo `.env` com as variáveis de ambiente necessá
 - `SPRING_PROFILES_ACTIVE` - Perfil ativo da aplicação
 - `SERVER_PORT` - Porta do servidor
 
-## 🚀 Como Usar
+## 🚀 Como Carregar o Arquivo .env
 
-### 1. O arquivo `.env` já está configurado
-O arquivo já foi criado na pasta `backend/` com os valores atuais.
-
-### 2. Iniciar a aplicação
+### 🎯 **Opção 1: Script Automático (Recomendado)**
 ```bash
 # Na pasta backend/
+./run-with-env.sh
+```
+
+### 🛠️ **Opção 2: Carregar Manualmente (macOS/Linux)**
+```bash
+# Na pasta backend/
+set -a && source .env && set +a && mvn spring-boot:run
+```
+
+### 💻 **Opção 3: Comando Longo com Export**
+```bash
+# Na pasta backend/
+export $(cat .env | xargs) && mvn spring-boot:run
+```
+
+### 🎪 **Opção 4: Passar Variáveis Diretamente ao Maven**
+```bash
+# Na pasta backend/
+mvn spring-boot:run -Dspring-boot.run.environmentVariables="JWT_SECRET=$(grep JWT_SECRET .env | cut -d= -f2),GOOGLE_CLIENT_ID=$(grep GOOGLE_CLIENT_ID .env | cut -d= -f2),GOOGLE_CLIENT_SECRET=$(grep GOOGLE_CLIENT_SECRET .env | cut -d= -f2)"
+```
+
+### 🪟 **Opção 5: Windows (PowerShell)**
+```powershell
+# Na pasta backend/
+Get-Content .env | ForEach-Object { 
+    if ($_ -match "^([^#][^=]+)=(.*)$") { 
+        [Environment]::SetEnvironmentVariable($matches[1], $matches[2], "Process") 
+    } 
+}; mvn spring-boot:run
+```
+
+### 🪟 **Opção 6: Windows (CMD)**
+```cmd
+# Na pasta backend/
+for /f "tokens=1,2 delims==" %i in (.env) do set %i=%j
 mvn spring-boot:run
 ```
 
-### 3. Verificar se está funcionando
-- Aplicação disponível em: `http://localhost:8080`
-- Health check: `http://localhost:8080/api/actuator/health`
-- Swagger UI: `http://localhost:8080/api/swagger-ui.html`
+## ✅ Verificar se está funcionando
+
+Após executar qualquer uma das opções acima:
+- 🌐 **Aplicação:** `http://localhost:8080`
+- 🏥 **Health check:** `http://localhost:8080/api/actuator/health`
+- 📚 **Swagger UI:** `http://localhost:8080/api/swagger-ui.html`
+- 📊 **Dashboard:** `http://localhost:3000` (frontend)
 
 ## ⚠️ Importante
 
