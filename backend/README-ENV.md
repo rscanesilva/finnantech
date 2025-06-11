@@ -15,31 +15,26 @@ Este diretório contém um arquivo `.env` com as variáveis de ambiente necessá
 
 ## 🚀 Como Carregar o Arquivo .env
 
-### 🎯 **Opção 1: Script Automático (Recomendado)**
+### 🎯 **Comando Direto (macOS/Linux) - RECOMENDADO**
 ```bash
 # Na pasta backend/
-./run-with-env.sh
-```
-
-### 🛠️ **Opção 2: Carregar Manualmente (macOS/Linux)**
-```bash
-# Na pasta backend/
+cd backend
 set -a && source .env && set +a && mvn spring-boot:run
 ```
 
-### 💻 **Opção 3: Comando Longo com Export**
+### 🛠️ **Alternativa com Export (macOS/Linux)**
 ```bash
 # Na pasta backend/
 export $(cat .env | xargs) && mvn spring-boot:run
 ```
 
-### 🎪 **Opção 4: Passar Variáveis Diretamente ao Maven**
+### 💻 **Passar Variáveis Diretamente ao Maven**
 ```bash
 # Na pasta backend/
 mvn spring-boot:run -Dspring-boot.run.environmentVariables="JWT_SECRET=$(grep JWT_SECRET .env | cut -d= -f2),GOOGLE_CLIENT_ID=$(grep GOOGLE_CLIENT_ID .env | cut -d= -f2),GOOGLE_CLIENT_SECRET=$(grep GOOGLE_CLIENT_SECRET .env | cut -d= -f2)"
 ```
 
-### 🪟 **Opção 5: Windows (PowerShell)**
+### 🪟 **Windows (PowerShell)**
 ```powershell
 # Na pasta backend/
 Get-Content .env | ForEach-Object { 
@@ -49,7 +44,7 @@ Get-Content .env | ForEach-Object {
 }; mvn spring-boot:run
 ```
 
-### 🪟 **Opção 6: Windows (CMD)**
+### 🪟 **Windows (CMD)**
 ```cmd
 # Na pasta backend/
 for /f "tokens=1,2 delims==" %i in (.env) do set %i=%j

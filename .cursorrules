@@ -1,0 +1,46 @@
+# Cursor Rules para Finnantech Project
+
+## 🚫 NÃO CRIAR Scripts de Execução
+- NUNCA criar arquivos `.sh`, `.bat`, `.ps1` ou outros scripts de execução
+- NÃO criar `run-with-env.sh`, `start.sh`, `deploy.sh` ou similares
+- O projeto deve ser executado com comandos diretos do Maven/NPM
+
+## 🎯 Comandos Diretos Preferidos
+
+### Backend (Spring Boot):
+```bash
+# Carregar .env e executar - USAR SEMPRE esta abordagem
+cd backend
+set -a && source .env && set +a && mvn spring-boot:run
+```
+
+### Frontend (Next.js):
+```bash
+cd frontend
+npm run dev
+```
+
+## 📝 Documentação de Variáveis de Ambiente
+- SEMPRE documentar como carregar variáveis de ambiente em README
+- Mostrar comandos diretos, não scripts
+- Explicar diferentes opções para diferentes sistemas operacionais
+
+## 🔐 Segurança
+- NUNCA expor valores reais de secrets em código
+- Arquivos .env devem estar sempre no .gitignore
+- Usar apenas variáveis de ambiente ${VAR_NAME} sem valores padrão expostos
+
+## 🛠️ Estrutura de Projeto
+- Manter estrutura limpa sem scripts auxiliares
+- Usar ferramentas nativas (Maven, NPM) em vez de scripts customizados
+- Documentar comandos no README em vez de criar scripts
+
+## 🚀 Desenvolvimento
+- Preferir comandos nativos das ferramentas
+- Evitar automação excessiva que complique o projeto
+- Manter simplicidade no setup e execução
+
+## 📚 Documentação
+- README deve ter comandos diretos e claros
+- Explicar passo-a-passo sem depender de scripts
+- Incluir opções para diferentes sistemas operacionais 
