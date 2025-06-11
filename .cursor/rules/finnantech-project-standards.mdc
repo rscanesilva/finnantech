@@ -1,4 +1,9 @@
-# Cursor Rules para Finnantech Project
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Finnantech Project Standards
 
 ## 🚫 NÃO CRIAR Scripts de Execução
 - NUNCA criar arquivos `.sh`, `.bat`, `.ps1` ou outros scripts de execução
@@ -43,4 +48,4 @@ npm run dev
 ## 📚 Documentação
 - README deve ter comandos diretos e claros
 - Explicar passo-a-passo sem depender de scripts
-- Incluir opções para diferentes sistemas operacionais 
+- Incluir opções para diferentes sistemas operacionais

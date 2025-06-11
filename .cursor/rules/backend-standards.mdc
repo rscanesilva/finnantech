@@ -1,0 +1,37 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Backend Development Standards
+
+## 🏗️ Arquitetura Spring Boot
+- Seguir arquitetura hexagonal (Ports & Adapters)
+- Separar camadas: domain, application, infrastructure
+- Usar dependency injection do Spring
+
+## 🔐 Configuração de Segurança
+- Variáveis de ambiente obrigatórias via ${VAR_NAME}
+- NUNCA expor secrets em application.yml
+- Usar arquivo .env para desenvolvimento local
+
+## 🗄️ Banco de Dados
+- H2 em memória para desenvolvimento
+- JPA/Hibernate para persistência
+- Scripts SQL em resources/
+
+## 📋 Comando para Execução
+```bash
+cd backend
+set -a && source .env && set +a && mvn spring-boot:run
+```
+
+## 🧪 Testes
+- Usar JUnit 5 e Spring Boot Test
+- Cobertura mínima de 90% (JaCoCo)
+- Testes unitários e de integração
+
+## 📚 Documentação API
+- Swagger/OpenAPI automático
+- Endpoints documentados
+- DTOs bem definidos
