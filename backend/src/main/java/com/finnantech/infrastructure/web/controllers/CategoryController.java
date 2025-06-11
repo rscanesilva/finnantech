@@ -1,41 +1,65 @@
 package com.finnantech.infrastructure.web.controllers;
 
-import com.finnantech.application.services.CategoryService;
-import com.finnantech.domain.entities.Category;
-import com.finnantech.infrastructure.web.dtos.CategoryCreateRequest;
-import com.finnantech.infrastructure.web.dtos.CategoryResponse;
-import com.finnantech.infrastructure.web.dtos.CategoryUpdateRequest;
-import com.finnantech.infrastructure.web.dtos.CategoryStatsResponse;
-import com.finnantech.infrastructure.web.dtos.ApiResponse;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.validation.Valid;
-import java.util.List;
-import java.util.stream.Collectors;
-import io.swagger.v3.oas.annotations.Operation;
+import com.finnantech.application.services.CategoryService;
+import com.finnantech.domain.entities.Category;
+import com.finnantech.infrastructure.services.JwtServiceAdapter;
+import com.finnantech.infrastructure.web.dtos.ApiResponse;
+import com.finnantech.infrastructure.web.dtos.CategoryCreateRequest;
+import com.finnantech.infrastructure.web.dtos.CategoryResponse;
+import com.finnantech.infrastructure.web.dtos.CategoryUpdateRequest;
+
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 
 /**
  * Controller REST para gerenciamento de categorias
  * Endpoints para CRUD de categorias e consultas especializadas
  */
 @RestController
-@RequestMapping("/api/v1/categories")
+@RequestMapping("/v1/categories")
 @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001", "http://localhost:3002"})
 @Tag(name = "Categories", description = "Endpoints para gerenciamento de categorias")
 @SecurityRequirement(name = "Bearer Authentication")
 public class CategoryController {
     
     private final CategoryService categoryService;
+    private final JwtServiceAdapter jwtService;
     
     @Autowired
-    public CategoryController(CategoryService categoryService) {
+    public CategoryController(CategoryService categoryService, JwtServiceAdapter jwtService) {
         this.categoryService = categoryService;
+        this.jwtService = jwtService;
+    }
+    
+    /**
+     * Extrai o userId do token JWT
+     */
+    private String extractUserIdFromRequest(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            return jwtService.extractUserId(token);
+        }
+        throw new RuntimeException("Token JWT não encontrado");
     }
     
     /**
@@ -43,9 +67,9 @@ public class CategoryController {
      * (categorias próprias + categorias padrão do sistema)
      */
     @GetMapping
-    public ResponseEntity<ApiResponse<List<CategoryResponse>>> getAllCategories(Authentication auth) {
+    public ResponseEntity<ApiResponse<List<CategoryResponse>>> getAllCategories(HttpServletRequest request) {
         try {
-            String userId = auth.getName(); // Obtém o ID do usuário do JWT
+            String userId = extractUserIdFromRequest(request);
             List<Category> categories = categoryService.getAllCategoriesForUser(userId);
             
             List<CategoryResponse> response = categories.stream()
@@ -65,9 +89,9 @@ public class CategoryController {
      */
     @GetMapping("/type/{type}")
     public ResponseEntity<ApiResponse<List<CategoryResponse>>> getCategoriesByType(
-            @PathVariable String type, Authentication auth) {
+            @PathVariable String type, HttpServletRequest request) {
         try {
-            String userId = auth.getName();
+            String userId = extractUserIdFromRequest(request);
             List<Category> categories = categoryService.getCategoriesByType(userId, type.toUpperCase());
             
             List<CategoryResponse> response = categories.stream()
@@ -87,9 +111,9 @@ public class CategoryController {
      * Lista apenas categorias de despesa
      */
     @GetMapping("/expenses")
-    public ResponseEntity<ApiResponse<List<CategoryResponse>>> getExpenseCategories(Authentication auth) {
+    public ResponseEntity<ApiResponse<List<CategoryResponse>>> getExpenseCategories(HttpServletRequest request) {
         try {
-            String userId = auth.getName();
+            String userId = extractUserIdFromRequest(request);
             List<Category> categories = categoryService.getExpenseCategories(userId);
             
             List<CategoryResponse> response = categories.stream()
@@ -108,9 +132,9 @@ public class CategoryController {
      * Lista apenas categorias de receita
      */
     @GetMapping("/income")
-    public ResponseEntity<ApiResponse<List<CategoryResponse>>> getIncomeCategories(Authentication auth) {
+    public ResponseEntity<ApiResponse<List<CategoryResponse>>> getIncomeCategories(HttpServletRequest request) {
         try {
-            String userId = auth.getName();
+            String userId = extractUserIdFromRequest(request);
             List<Category> categories = categoryService.getIncomeCategories(userId);
             
             List<CategoryResponse> response = categories.stream()
@@ -129,9 +153,9 @@ public class CategoryController {
      * Lista apenas categorias de investimento
      */
     @GetMapping("/investments")
-    public ResponseEntity<ApiResponse<List<CategoryResponse>>> getInvestmentCategories(Authentication auth) {
+    public ResponseEntity<ApiResponse<List<CategoryResponse>>> getInvestmentCategories(HttpServletRequest request) {
         try {
-            String userId = auth.getName();
+            String userId = extractUserIdFromRequest(request);
             List<Category> categories = categoryService.getInvestmentCategories(userId);
             
             List<CategoryResponse> response = categories.stream()
@@ -151,9 +175,9 @@ public class CategoryController {
      */
     @GetMapping("/{categoryId}")
     public ResponseEntity<ApiResponse<CategoryResponse>> getCategoryById(
-            @PathVariable String categoryId, Authentication auth) {
+            @PathVariable String categoryId, HttpServletRequest request) {
         try {
-            String userId = auth.getName();
+            String userId = extractUserIdFromRequest(request);
             
             return categoryService.getCategoryById(categoryId)
                     .filter(category -> categoryService.canUserUseCategory(userId, categoryId))
@@ -173,9 +197,9 @@ public class CategoryController {
      */
     @PostMapping
     public ResponseEntity<ApiResponse<CategoryResponse>> createCategory(
-            @Valid @RequestBody CategoryCreateRequest request, Authentication auth) {
+            @Valid @RequestBody CategoryCreateRequest request, HttpServletRequest httpRequest) {
         try {
-            String userId = auth.getName();
+            String userId = extractUserIdFromRequest(httpRequest);
             
             Category category = categoryService.createUserCategory(
                     userId,
@@ -205,9 +229,9 @@ public class CategoryController {
     public ResponseEntity<ApiResponse<CategoryResponse>> updateCategory(
             @PathVariable String categoryId,
             @Valid @RequestBody CategoryUpdateRequest request,
-            Authentication auth) {
+            HttpServletRequest httpRequest) {
         try {
-            String userId = auth.getName();
+            String userId = extractUserIdFromRequest(httpRequest);
             
             Category category = categoryService.updateUserCategory(
                     userId,
@@ -235,9 +259,9 @@ public class CategoryController {
      */
     @DeleteMapping("/{categoryId}")
     public ResponseEntity<ApiResponse<Void>> deactivateCategory(
-            @PathVariable String categoryId, Authentication auth) {
+            @PathVariable String categoryId, HttpServletRequest request) {
         try {
-            String userId = auth.getName();
+            String userId = extractUserIdFromRequest(request);
             categoryService.deactivateUserCategory(userId, categoryId);
             
             return ResponseEntity.ok(ApiResponse.success(null, "Categoria desativada com sucesso"));
@@ -256,9 +280,9 @@ public class CategoryController {
      */
     @PatchMapping("/{categoryId}/activate")
     public ResponseEntity<ApiResponse<CategoryResponse>> reactivateCategory(
-            @PathVariable String categoryId, Authentication auth) {
+            @PathVariable String categoryId, HttpServletRequest request) {
         try {
-            String userId = auth.getName();
+            String userId = extractUserIdFromRequest(request);
             categoryService.reactivateUserCategory(userId, categoryId);
             
             return categoryService.getCategoryById(categoryId)
@@ -267,9 +291,6 @@ public class CategoryController {
                     .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
                             .body(ApiResponse.error("Categoria não encontrada")));
             
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.error("Erro ao reativar categoria: " + e.getMessage()));
@@ -280,9 +301,9 @@ public class CategoryController {
      * Lista categorias mais utilizadas pelo usuário
      */
     @GetMapping("/most-used")
-    public ResponseEntity<ApiResponse<List<CategoryResponse>>> getMostUsedCategories(Authentication auth) {
+    public ResponseEntity<ApiResponse<List<CategoryResponse>>> getMostUsedCategories(HttpServletRequest request) {
         try {
-            String userId = auth.getName();
+            String userId = extractUserIdFromRequest(request);
             List<Category> categories = categoryService.getMostUsedCategories(userId);
             
             List<CategoryResponse> response = categories.stream()
@@ -301,9 +322,9 @@ public class CategoryController {
      * Lista apenas categorias personalizadas do usuário
      */
     @GetMapping("/custom")
-    public ResponseEntity<ApiResponse<List<CategoryResponse>>> getCustomCategories(Authentication auth) {
+    public ResponseEntity<ApiResponse<List<CategoryResponse>>> getCustomCategories(HttpServletRequest request) {
         try {
-            String userId = auth.getName();
+            String userId = extractUserIdFromRequest(request);
             List<Category> categories = categoryService.getUserCustomCategories(userId);
             
             List<CategoryResponse> response = categories.stream()
@@ -322,16 +343,17 @@ public class CategoryController {
      * Obtém estatísticas das categorias do usuário
      */
     @GetMapping("/stats")
-    public ResponseEntity<ApiResponse<CategoryStatsResponse>> getCategoryStats(Authentication auth) {
+    public ResponseEntity<ApiResponse<Object>> getCategoryStats(HttpServletRequest request) {
         try {
-            String userId = auth.getName();
+            String userId = extractUserIdFromRequest(request);
             long customCount = categoryService.countUserCategories(userId);
             boolean canCreateMore = categoryService.canCreateMoreCategories(userId);
             
-            CategoryStatsResponse stats = new CategoryStatsResponse();
-            stats.setCustomCategoriesCount(customCount);
-            stats.setCanCreateMore(canCreateMore);
-            stats.setMaxCategories(50L); // Limite configurável
+            // TODO: Criar DTO específico para estatísticas de categorias do usuário
+            // Por enquanto retornando objeto genérico
+            Object stats = "{\"customCategoriesCount\": " + customCount + 
+                          ", \"canCreateMore\": " + canCreateMore + 
+                          ", \"maxCategories\": 50}";
             
             return ResponseEntity.ok(ApiResponse.success(stats, "Estatísticas carregadas"));
             

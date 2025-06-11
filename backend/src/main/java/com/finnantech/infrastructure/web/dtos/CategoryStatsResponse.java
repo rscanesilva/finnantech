@@ -1,33 +1,68 @@
 package com.finnantech.infrastructure.web.dtos;
 
+import java.math.BigDecimal;
+
 /**
- * DTO de resposta para estatísticas de categorias
- * Usado para exibir informações sobre uso de categorias
+ * DTO para estatísticas de categoria
  */
 public class CategoryStatsResponse {
     
-    private Long customCategoriesCount;
-    private Boolean canCreateMore;
-    private Long maxCategories;
-    
+    private String categoryId;
+    private String categoryName;
+    private BigDecimal totalAmount;
+    private Integer transactionCount;
+    private Double percentage;
+
     // Construtores
     public CategoryStatsResponse() {}
-    
-    public CategoryStatsResponse(Long customCategoriesCount, Boolean canCreateMore, Long maxCategories) {
-        this.customCategoriesCount = customCategoriesCount;
-        this.canCreateMore = canCreateMore;
-        this.maxCategories = maxCategories;
+
+    public CategoryStatsResponse(String categoryId, String categoryName, BigDecimal totalAmount, 
+                               Integer transactionCount, Double percentage) {
+        this.categoryId = categoryId;
+        this.categoryName = categoryName;
+        this.totalAmount = totalAmount;
+        this.transactionCount = transactionCount;
+        this.percentage = percentage;
     }
-    
+
     // Getters e Setters
-    public Long getCustomCategoriesCount() { return customCategoriesCount; }
-    public void setCustomCategoriesCount(Long customCategoriesCount) { 
-        this.customCategoriesCount = customCategoriesCount; 
+    public String getCategoryId() {
+        return categoryId;
     }
-    
-    public Boolean getCanCreateMore() { return canCreateMore; }
-    public void setCanCreateMore(Boolean canCreateMore) { this.canCreateMore = canCreateMore; }
-    
-    public Long getMaxCategories() { return maxCategories; }
-    public void setMaxCategories(Long maxCategories) { this.maxCategories = maxCategories; }
+
+    public void setCategoryId(String categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
+    }
+
+    public BigDecimal getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(BigDecimal totalAmount) {
+        this.totalAmount = totalAmount;
+    }
+
+    public Integer getTransactionCount() {
+        return transactionCount;
+    }
+
+    public void setTransactionCount(Integer transactionCount) {
+        this.transactionCount = transactionCount;
+    }
+
+    public Double getPercentage() {
+        return percentage;
+    }
+
+    public void setPercentage(Double percentage) {
+        this.percentage = percentage;
+    }
 } 

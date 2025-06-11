@@ -60,6 +60,9 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/metrics/**").hasRole("ADMIN") // Protegido
                         .requestMatchers("/actuator/**").hasRole("ADMIN") // Outros endpoints protegidos
                         
+                        // API endpoints protegidos com JWT
+                        .requestMatchers("/v1/**").authenticated()
+                        
                         // Todas as outras requisições precisam de autenticação
                         .anyRequest().authenticated()
                 )

@@ -2,29 +2,35 @@ import { useState, useEffect } from 'react';
 import { dashboardAPI } from '@/lib/api';
 import {
   Transaction,
+  RecentTransaction,
   Category,
   PaymentMethod,
   Investment,
   Budget,
   DashboardSummary,
+  DashboardSummaryResponse,
+  CategoryStatsResponse,
+  MonthlyStatsResponse,
+  MonthlyExpensesResponse,
   CategoryExpense,
   MonthlyEvolution
 } from '@/types/dashboard';
 
 interface DashboardData {
-  // Dados principais
-  summary: DashboardSummary | null;
+  // Dados principais - usando as novas interfaces do backend
+  summary: DashboardSummaryResponse | null;
   transactions: Transaction[];
-  recentTransactions: Transaction[];
+  recentTransactions: RecentTransaction[];
   categories: Category[];
   paymentMethods: PaymentMethod[];
   creditCards: PaymentMethod[];
   investments: Investment[];
   budgets: Budget[];
   
-  // Estatísticas
-  categoryExpenses: CategoryExpense[];
-  monthlyEvolution: MonthlyEvolution[];
+  // Estatísticas - usando as novas interfaces do backend
+  categoryExpenses: CategoryStatsResponse[];
+  monthlyEvolution: MonthlyStatsResponse[];
+  monthlyExpenses: MonthlyExpensesResponse[];
   
   // Estados de loading
   loading: {
@@ -61,6 +67,8 @@ interface DashboardActions {
   loadBudgets: (monthYear?: string) => Promise<void>;
   loadCategoryExpenses: (monthYear?: string) => Promise<void>;
   loadMonthlyEvolution: (months?: number) => Promise<void>;
+  loadMonthlyExpenses: () => Promise<void>;
+  loadMonthlyExpensesByPeriod: (startDate: string, endDate: string) => Promise<void>;
   
   // Função para carregar todos os dados
   loadAllData: () => Promise<void>;
@@ -81,6 +89,7 @@ export function useDashboard(): DashboardData & DashboardActions {
     budgets: [],
     categoryExpenses: [],
     monthlyEvolution: [],
+    monthlyExpenses: [],
     loading: {
       summary: false,
       transactions: false,
@@ -277,18 +286,52 @@ export function useDashboard(): DashboardData & DashboardActions {
     }
   };
 
+  // Carregar despesas mensais
+  const loadMonthlyExpenses = async () => {
+    try {
+      setLoading('statistics', true);
+      setError('statistics', null);
+      
+      const monthlyExpenses = await dashboardAPI.getMonthlyExpenses();
+      setData(prev => ({ ...prev, monthlyExpenses }));
+    } catch (error: any) {
+      console.error('Erro ao carregar despesas mensais:', error);
+      setError('statistics', error.message);
+    } finally {
+      setLoading('statistics', false);
+    }
+  };
+
+  // Carregar despesas mensais por período
+  const loadMonthlyExpensesByPeriod = async (startDate: string, endDate: string) => {
+    try {
+      setLoading('statistics', true);
+      setError('statistics', null);
+      
+      const monthlyExpenses = await dashboardAPI.getMonthlyExpensesByPeriod(startDate, endDate);
+      setData(prev => ({ ...prev, monthlyExpenses }));
+    } catch (error: any) {
+      console.error('Erro ao carregar despesas mensais por período:', error);
+      setError('statistics', error.message);
+    } finally {
+      setLoading('statistics', false);
+    }
+  };
+
   // Carregar todos os dados do dashboard
   const loadAllData = async () => {
-    console.log('🔄 Carregando dados do dashboard...');
+    console.log('🔄 Carregando dados do dashboard via API...');
     
     try {
       await Promise.allSettled([
-        loadRecentTransactions(5),
+        loadSummary(),
+        loadRecentTransactions(10),
         loadCategories(),
         loadCreditCards(),
         loadInvestments(),
         loadCategoryExpenses(),
-        loadMonthlyEvolution(6),
+        loadMonthlyExpenses(),
+        loadBudgets()
       ]);
       
       console.log('✅ Dados do dashboard carregados com sucesso');
@@ -299,13 +342,13 @@ export function useDashboard(): DashboardData & DashboardActions {
 
   // Função para atualizar todos os dados
   const refresh = async () => {
-    console.log('🔄 Atualizando dados do dashboard...');
+    console.log('🔄 Atualizando dados do dashboard via API...');
     await loadAllData();
   };
 
   // Carregar dados iniciais
   useEffect(() => {
-    console.log('🎯 Iniciando hook useDashboard');
+    console.log('🎯 Iniciando hook useDashboard com APIs reais');
     loadAllData();
   }, []);
 
@@ -321,6 +364,8 @@ export function useDashboard(): DashboardData & DashboardActions {
     loadBudgets,
     loadCategoryExpenses,
     loadMonthlyEvolution,
+    loadMonthlyExpenses,
+    loadMonthlyExpensesByPeriod,
     loadAllData,
     refresh,
   };

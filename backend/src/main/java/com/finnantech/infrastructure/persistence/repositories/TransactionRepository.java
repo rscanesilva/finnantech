@@ -1,6 +1,9 @@
 package com.finnantech.infrastructure.persistence.repositories;
 
-import com.finnantech.domain.entities.Transaction;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -8,9 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
+import com.finnantech.domain.entities.Transaction;
 
 /**
  * Repository para entidade Transaction
@@ -105,16 +106,20 @@ public interface TransactionRepository extends JpaRepository<Transaction, String
                                                  @Param("endDate") LocalDate endDate);
     
     /**
-     * DASHBOARD: Evolução mensal de receitas e despesas
+     * DASHBOARD: Despesas mensais para gráfico de barras
      */
-    @Query("SELECT t.monthYear, t.type, SUM(t.amount) FROM Transaction t WHERE t.userId = :userId " +
-           "AND t.status = 'CONFIRMADA' " +
-           "AND t.monthYear >= :startMonthYear AND t.monthYear <= :endMonthYear " +
-           "GROUP BY t.monthYear, t.type " +
-           "ORDER BY t.monthYear ASC, t.type ASC")
-    List<Object[]> getMonthlyEvolution(@Param("userId") String userId,
-                                      @Param("startMonthYear") String startMonthYear,
-                                      @Param("endMonthYear") String endMonthYear);
+    @Query(value = "SELECT YEAR(transaction_date) as ano, MONTH(transaction_date) as mes, SUM(amount) as total " +
+           "FROM transactions WHERE user_id = ?1 " +
+           "AND status = 'CONFIRMADA' " +
+           "AND type = 'DESPESA' " +
+           "AND transaction_date >= ?2 " +
+           "AND transaction_date <= ?3 " +
+           "GROUP BY YEAR(transaction_date), MONTH(transaction_date) " +
+           "ORDER BY YEAR(transaction_date) ASC, MONTH(transaction_date) ASC", 
+           nativeQuery = true)
+    List<Object[]> getMonthlyExpenses(@Param("userId") String userId,
+                                     @Param("startDate") LocalDate startDate,
+                                     @Param("endDate") LocalDate endDate);
     
     /**
      * Busca transações pendentes de um usuário

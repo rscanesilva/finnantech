@@ -1,13 +1,27 @@
 package com.finnantech.domain.entities;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 /**
  * Entidade Transaction do domínio
@@ -103,7 +117,7 @@ public class Transaction {
     private String externalId;
     
     // Tags para organização (JSON)
-    @Column(name = "tags", columnDefinition = "JSON")
+    @Column(name = "tags_json", columnDefinition = "TEXT")
     private String tagsJson;
     
     // Campo calculado para performance

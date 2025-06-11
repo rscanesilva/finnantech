@@ -142,6 +142,58 @@ body {
   }
 }
 
+@keyframes grow-up {
+  from {
+    transform: scaleY(0);
+    transform-origin: bottom;
+  }
+  to {
+    transform: scaleY(1);
+    transform-origin: bottom;
+  }
+}
+
+@keyframes fill-right {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes fill-bar {
+  from {
+    width: 0%;
+  }
+  to {
+    width: var(--target-width);
+  }
+}
+
+@keyframes slide-in-left {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes bounce-soft {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 .animate-draw-line {
   animation: draw-line 2s ease-out forwards;
 }
@@ -153,6 +205,42 @@ body {
 
 .animate-grow-bar {
   animation: grow-bar 1s ease-out forwards;
+}
+
+.animate-grow-up {
+  transform: scaleY(0);
+  transform-origin: bottom;
+  animation: grow-up 0.8s ease-out forwards;
+}
+
+.animate-fill-right {
+  width: 0%;
+  animation: fill-right 1.2s ease-out forwards;
+}
+
+.animate-fill-bar {
+  width: 0%;
+  animation: fill-bar 1.2s ease-out forwards;
+}
+
+.animate-slide-in-left {
+  transform: translateX(-20px);
+  opacity: 0;
+  animation: slide-in-left 0.6s ease-out forwards;
+}
+
+.animate-bounce-soft {
+  animation: bounce-soft 0.6s ease-out forwards;
+}
+
+/* Efeito glow suave para ícones de categoria */
+.category-icon-glow {
+  filter: drop-shadow(0 0 4px currentColor);
+  transition: filter 0.3s ease;
+}
+
+.category-icon-glow:hover {
+  filter: drop-shadow(0 0 8px currentColor);
 }
 
 /* Estilo para dropdown personalizado */

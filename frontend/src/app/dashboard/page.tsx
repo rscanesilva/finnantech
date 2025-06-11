@@ -32,43 +32,14 @@ import {
   MagnifyingGlass,
   DotsThree,
 } from '@phosphor-icons/react';
+import { 
+  DashboardSummaryResponse,
+  RecentTransaction,
+  CategoryStatsResponse,
+  MonthlyStatsResponse 
+} from '@/types/dashboard';
 
-// Dados mockados - usados como fallback
-const mockData = {
-  saldoTotal: 15000.00,
-  receitas: 25000.00,
-  despesas: 10000.00,
-  investimentos: 5000.00,
-  ultimasTransacoes: [
-    { id: 1, descricao: 'Salário', valor: 5000.00, tipo: 'receita', data: '2024-02-15' },
-    { id: 2, descricao: 'Aluguel', valor: 1500.00, tipo: 'despesa', data: '2024-02-10' },
-    { id: 3, descricao: 'Investimento', valor: 2000.00, tipo: 'investimento', data: '2024-02-05' },
-  ],
-};
-
-// Dados mockados para as estatísticas - fallback
-const mockStats = {
-  totalGasto: 3250.75,
-  categorias: [
-    { nome: 'Mercado', valor: 850.50, icone: ShoppingCart, cor: '#5392ff' },
-    { nome: 'Moradia', valor: 1200.00, icone: House, cor: '#8b5cf6' },
-    { nome: 'Transporte', valor: 450.25, icone: Car, cor: '#32d583' },
-    { nome: 'Alimentação', valor: 350.00, icone: ForkKnife, cor: '#f178b6' },
-    { nome: 'Saúde', valor: 200.00, icone: FirstAid, cor: '#ff9500' },
-    { nome: 'Educação', valor: 100.00, icone: GraduationCap, cor: '#ffcc00' },
-    { nome: 'Lazer', valor: 150.00, icone: Gift, cor: '#ff3b30' },
-    { nome: 'Outros', valor: 50.00, icone: ShoppingBag, cor: '#8e8e93' },
-  ]
-};
-
-// Dados mockados para evolução financeira (últimos 6 meses)
-const mockEvolution = {
-  meses: ['Set', 'Out', 'Nov', 'Dez', 'Jan', 'Fev'],
-  receitas: [7200, 8500, 7800, 9200, 8800, 8500],
-  despesas: [5400, 6200, 5800, 6800, 6400, 6200],
-};
-
-// Dados mockados para cartões de crédito
+// Dados mockados - usados como fallback para componentes que ainda não têm API
 const mockCartoes = [
   {
     id: 1,
@@ -114,55 +85,6 @@ const mockCartoes = [
   }
 ];
 
-// Dados mockados para transações recentes
-const mockTransacoes = [
-  {
-    empresa: "Adobe CC",
-    data: "12 Mar, 11:28",
-    status: "Concluída",
-    categoria: "Assinatura",
-    valor: 35.00,
-    tipo: "despesa",
-    cor: "#ff3b30"
-  },
-  {
-    empresa: "Walmart",
-    data: "09 Mar, 09:22",
-    status: "Concluída", 
-    categoria: "Mercado",
-    valor: 120.00,
-    tipo: "despesa",
-    cor: "#5392ff"
-  },
-  {
-    empresa: "Adidas",
-    data: "02 Mar, 10:32",
-    status: "Concluída",
-    categoria: "Shopping",
-    valor: 890.00,
-    tipo: "despesa",
-    cor: "#32d583"
-  },
-  {
-    empresa: "Uber",
-    data: "01 Mar, 08:24",
-    status: "Cancelada",
-    categoria: "Transporte", 
-    valor: 48.00,
-    tipo: "despesa",
-    cor: "#8e8e93"
-  },
-  {
-    empresa: "Salário",
-    data: "01 Mar, 00:00",
-    status: "Concluída",
-    categoria: "Receita",
-    valor: 5000.00,
-    tipo: "receita",
-    cor: "#32d583"
-  }
-];
-
 // Função para mapear ícones de categoria
 const getCategoryIcon = (iconName: string) => {
   const iconMap: Record<string, any> = {
@@ -192,59 +114,76 @@ const getCategoryIcon = (iconName: string) => {
   return iconMap[iconName] || Question;
 };
 
-// Função para processar dados da API para o formato esperado pelo componente
-const processApiData = (dashboardData: any) => {
-  const {
-    recentTransactions,
-    categoryExpenses,
-    monthlyEvolution,
-    creditCards,
-    investments
-  } = dashboardData;
+// Função para converter dados do backend para formato do frontend
+const processApiData = (
+  summary: DashboardSummaryResponse | null,
+  recentTransactions: RecentTransaction[],
+  categoryExpenses: CategoryStatsResponse[],
+  monthlyEvolution: MonthlyStatsResponse[]
+) => {
+  // Usar dados do resumo do backend ou fallback
+  const processedSummary = summary ? {
+    saldoTotal: summary.totalBalance,
+    receitas: summary.totalIncomes,
+    despesas: summary.totalExpenses,
+    investimentos: summary.totalInvestments,
+    receitasVariacao: summary.incomesVariation,
+    despesasVariacao: summary.expensesVariation,
+    saldoVariacao: summary.balanceVariation
+  } : {
+    saldoTotal: 15000.00,
+    receitas: 25000.00,
+    despesas: 10000.00,
+    investimentos: 5000.00,
+    receitasVariacao: 8.0,
+    despesasVariacao: 5.0,
+    saldoVariacao: 12.0
+  };
 
-  // Calcular totais a partir das transações
-  const totalReceitas = recentTransactions
-    .filter((t: any) => t.type === 'RECEITA')
-    .reduce((sum: number, t: any) => sum + t.amount, 0);
-
-  const totalDespesas = recentTransactions
-    .filter((t: any) => t.type === 'DESPESA')
-    .reduce((sum: number, t: any) => sum + t.amount, 0);
-
-  const totalInvestimentos = investments
-    .reduce((sum: number, i: any) => sum + (i.currentAmount || i.initialAmount), 0);
-
-  const saldoTotal = totalReceitas - totalDespesas + totalInvestimentos;
-
-  // Processar transações para o formato esperado
-  const ultimasTransacoes = recentTransactions.slice(0, 3).map((t: any) => ({
+  // Converter transações recentes para o formato esperado
+  const ultimasTransacoes = recentTransactions.slice(0, 3).map((t) => ({
     id: t.id,
     descricao: t.description,
     valor: t.amount,
-    tipo: t.type === 'RECEITA' ? 'receita' : t.type === 'DESPESA' ? 'despesa' : 'investimento',
+    tipo: t.type === 'RECEITA' ? 'receita' : 'despesa',
     data: new Date(t.transactionDate).toLocaleDateString('pt-BR'),
   }));
 
-  // Processar categorias
-  const categorias = categoryExpenses.map((cat: any) => ({
+  // Converter categorias para o formato esperado
+  const categorias = categoryExpenses.map((cat) => ({
     nome: cat.categoryName,
     valor: cat.totalAmount,
     icone: getCategoryIcon(cat.categoryIcon),
     cor: cat.categoryColor,
   }));
 
-  const totalGasto = categorias.reduce((sum: number, cat: any) => sum + cat.valor, 0);
+  const totalGasto = categorias.reduce((sum, cat) => sum + cat.valor, 0);
+
+  // Processar evolução mensal para o gráfico
+  const evolucao = monthlyEvolution && monthlyEvolution.length > 0 ? {
+    meses: monthlyEvolution.map(m => {
+      if (!m.monthYear) return 'N/A';
+      const [year, month] = m.monthYear.split('-');
+      const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 
+                         'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+      return monthNames[parseInt(month) - 1] || 'N/A';
+    }),
+    receitas: monthlyEvolution.map(m => m.totalIncomes || 0),
+    despesas: monthlyEvolution.map(m => m.totalExpenses || 0),
+  } : {
+    meses: [],
+    receitas: [],
+    despesas: [],
+  };
 
   return {
-    saldoTotal,
-    receitas: totalReceitas,
-    despesas: totalDespesas,
-    investimentos: totalInvestimentos,
+    ...processedSummary,
     ultimasTransacoes,
     stats: {
       totalGasto,
       categorias,
-    }
+    },
+    evolucao
   };
 };
 
@@ -254,19 +193,22 @@ export default function DashboardPage() {
   const dashboardData = useDashboard();
   
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [evolutionPeriod, setEvolutionPeriod] = useState('Últimos 6 meses');
+
   const [categoryPeriod, setCategoryPeriod] = useState('Este mês');
   const [currentCard, setCurrentCard] = useState(0);
 
-  // Processar dados - usar dados reais se disponíveis, senão usar mock
-  const hasRealData = dashboardData.recentTransactions.length > 0 || 
+  // Verificar se temos dados reais das APIs
+  const hasRealData = dashboardData.summary !== null || 
+                      dashboardData.recentTransactions.length > 0 ||
                       dashboardData.categoryExpenses.length > 0;
 
-  const processedData = hasRealData ? 
-    processApiData(dashboardData) : 
-    { ...mockData, stats: mockStats };
-
-  const data = processedData;
+  // Processar dados - usar dados reais se disponíveis, senão usar fallback
+  const data = processApiData(
+    dashboardData.summary,
+    dashboardData.recentTransactions,
+    dashboardData.categoryExpenses,
+    dashboardData.monthlyEvolution
+  );
 
   // Proteger rota - redirecionar se não estiver autenticado
   useEffect(() => {
@@ -301,45 +243,48 @@ export default function DashboardPage() {
           ? 'bg-green-100 text-green-800 border border-green-200' 
           : 'bg-yellow-100 text-yellow-800 border border-yellow-200'
       }`}>
-        {hasRealData ? '✅ Dados Reais' : '⚠️ Dados Mockados'}
+        {hasRealData ? '✅ Dados da API' : '⚠️ Dados Mockados'}
       </div>
     </div>
   );
 
-  // Processar cartões - usar dados reais se disponíveis
-  const cartoes = hasRealData && dashboardData.creditCards.length > 0 
-    ? dashboardData.creditCards.map((card, index) => ({
-        id: card.id,
-        nome: user?.name || 'Usuário',
-        ultimosDigitos: card.cardLastDigits || '****',
-        bandeira: card.cardBrand || 'Cartão',
-        vencimento: card.cardExpiry || '--/--',
-        limite: card.cardLimit || 0,
-        faturaAberta: 0, // Seria calculado do backend
-        vencimentoFatura: '--',
-        faturaVencida: false,
-        melhorDiaUso: card.cardClosingDay ? `Após dia ${card.cardClosingDay}` : 'Qualquer dia',
-        cor: `linear-gradient(135deg, hsl(${index * 60}, 70%, 60%) 0%, hsl(${(index * 60) + 30}, 70%, 50%) 100%)`,
-        bandeiraIcone: "💳"
-      }))
-    : mockCartoes;
+  // Processar cartões - usar dados reais se disponíveis (mantendo mock por enquanto)
+  const cartoes = mockCartoes;
 
-  // Processar transações recentes - usar dados reais se disponíveis
-  const transacoes = hasRealData && dashboardData.recentTransactions.length > 0
+  // Processar transações recentes - usar dados reais
+  const transacoes = dashboardData.recentTransactions.length > 0
     ? dashboardData.recentTransactions.slice(0, 5).map((t) => ({
         empresa: t.description,
         data: new Date(t.transactionDate).toLocaleDateString('pt-BR'),
         status: t.status === 'CONFIRMADA' ? 'Concluída' : 
                 t.status === 'PENDENTE' ? 'Pendente' : 'Cancelada',
-        categoria: t.merchantCategory || 'Geral',
+        categoria: t.categoryName || t.merchantCategory || 'Geral',
         valor: t.amount,
         tipo: t.type === 'RECEITA' ? 'receita' : 'despesa',
         cor: t.type === 'RECEITA' ? '#32d583' : '#ff3b30'
       }))
-    : mockTransacoes;
+    : [
+        {
+          empresa: "Adobe CC",
+          data: "12 Mar, 11:28",
+          status: "Concluída",
+          categoria: "Assinatura",
+          valor: 35.00,
+          tipo: "despesa",
+          cor: "#ff3b30"
+        },
+        {
+          empresa: "Walmart",
+          data: "09 Mar, 09:22",
+          status: "Concluída", 
+          categoria: "Mercado",
+          valor: 120.00,
+          tipo: "despesa",
+          cor: "#5392ff"
+        }
+      ];
 
-  // Usar dados de evolução - mock por enquanto, pois precisaria de mais dados históricos
-  const evolucao = mockEvolution;
+
 
   const nextCard = () => {
     setCurrentCard((prev) => (prev + 1) % cartoes.length);
@@ -349,25 +294,7 @@ export default function DashboardPage() {
     setCurrentCard((prev) => (prev - 1 + cartoes.length) % cartoes.length);
   };
 
-  // Função para gerar pontos SVG das curvas
-  const generateSVGPath = (data: number[], maxValue: number) => {
-    const points = data.map((value, index) => {
-      const x = (index / (data.length - 1)) * 500;
-      const y = 150 - (value / maxValue) * 100;
-      return `${x},${y}`;
-    });
-    
-    return `M${points[0]} ${points.slice(1).map((point, index) => {
-      const prevPoint = points[index];
-      const [x, y] = point.split(',');
-      const [prevX, prevY] = prevPoint.split(',');
-      const cpX1 = Number(prevX) + 40;
-      const cpX2 = Number(x) - 40;
-      return `C${cpX1},${prevY} ${cpX2},${y} ${x},${y}`;
-    }).join(' ')}`;
-  };
 
-  const maxEvolutionValue = Math.max(...mockEvolution.receitas, ...mockEvolution.despesas);
 
   return (
     <div className="min-h-screen bg-background p-6">
@@ -461,7 +388,7 @@ export default function DashboardPage() {
             <div className="mt-4 flex items-center text-sm">
               <span className="text-success flex items-center">
                 <ArrowUpRight className="h-4 w-4 mr-1" />
-                12%
+                {data.saldoVariacao?.toFixed(1) || '12'}%
               </span>
               <span className="text-text-secondary ml-2">vs. mês anterior</span>
             </div>
@@ -480,7 +407,7 @@ export default function DashboardPage() {
             <div className="mt-4 flex items-center text-sm">
               <span className="text-success flex items-center">
                 <ArrowUpRight className="h-4 w-4 mr-1" />
-                8%
+                {data.receitasVariacao?.toFixed(1) || '8'}%
               </span>
               <span className="text-text-secondary ml-2">vs. mês anterior</span>
             </div>
@@ -499,7 +426,7 @@ export default function DashboardPage() {
             <div className="mt-4 flex items-center text-sm">
               <span className="text-error flex items-center">
                 <ArrowDownRight className="h-4 w-4 mr-1" />
-                5%
+                {data.despesasVariacao?.toFixed(1) || '5'}%
               </span>
               <span className="text-text-secondary ml-2">vs. mês anterior</span>
             </div>
@@ -704,95 +631,135 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Card: Evolução Financeira */}
+          {/* Card: Despesas Mensais */}
           <div className="card">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-text-primary">Evolução Financeira</h3>
+              <h3 className="text-lg font-semibold text-text-primary">Despesas Mensais</h3>
               <button className="bg-card-secondary border border-border px-3 py-1 rounded-lg text-sm text-text-secondary hover:text-text-primary flex items-center gap-2">
-                {evolutionPeriod} <CaretDown className="h-4 w-4" />
+                Últimos 6 meses <CaretDown className="h-4 w-4" />
               </button>
             </div>
-            <div className="flex-1 flex items-center justify-center">
-              <svg width="100%" height="150" viewBox="0 0 500 150" className="overflow-visible">
-                {/* Grid lines */}
-                <defs>
-                  <pattern id="grid" width="50" height="25" patternUnits="userSpaceOnUse">
-                    <path d="M 50 0 L 0 0 0 25" fill="none" stroke="rgb(51 51 54)" strokeWidth="0.5" opacity="0.3"/>
-                  </pattern>
-                </defs>
-                <rect width="500" height="150" fill="url(#grid)" />
-                
-                {/* Linha de Receitas (Verde) */}
-                <path
-                  d={generateSVGPath(evolucao.receitas, maxEvolutionValue)}
-                  stroke="#32d583"
-                  fill="none"
-                  strokeWidth="3"
-                  className="animate-draw-line"
-                />
-                
-                {/* Linha de Despesas (Rosa) */}
-                <path
-                  d={generateSVGPath(evolucao.despesas, maxEvolutionValue)}
-                  stroke="#f178b6"
-                  fill="none"
-                  strokeWidth="3"
-                  className="animate-draw-line"
-                  style={{ animationDelay: '0.5s' }}
-                />
-                
-                {/* Pontos das Receitas */}
-                {evolucao.receitas.map((value, index) => {
-                  const x = (index / (evolucao.receitas.length - 1)) * 500;
-                  const y = 150 - (value / maxEvolutionValue) * 100;
-                  return (
-                    <circle
-                      key={`receita-${index}`}
-                      cx={x}
-                      cy={y}
-                      r="4"
-                      fill="#32d583"
-                      className="animate-fade-in"
-                      style={{ animationDelay: `${1 + index * 0.1}s` }}
-                    />
-                  );
-                })}
-                
-                {/* Pontos das Despesas */}
-                {evolucao.despesas.map((value, index) => {
-                  const x = (index / (evolucao.despesas.length - 1)) * 500;
-                  const y = 150 - (value / maxEvolutionValue) * 100;
-                  return (
-                    <circle
-                      key={`despesa-${index}`}
-                      cx={x}
-                      cy={y}
-                      r="4"
-                      fill="#f178b6"
-                      className="animate-fade-in"
-                      style={{ animationDelay: `${1.5 + index * 0.1}s` }}
-                    />
-                  );
-                })}
-              </svg>
+            <div className="flex-1 flex items-end justify-center gap-6 h-64 px-4">
+              {/* Gráfico de barras usando dados de despesas mensais */}
+              {dashboardData.monthlyExpenses.length > 0 
+                ? dashboardData.monthlyExpenses.map((monthData, index) => {
+                    const maxExpense = Math.max(...dashboardData.monthlyExpenses.map(m => m.despesas));
+                    const barHeight = (monthData.despesas / maxExpense) * 180; // altura máxima de 180px
+                    
+                    // Cores dinâmicas baseadas no valor
+                    const getBarColor = (value: number, maxValue: number) => {
+                      const percentage = (value / maxValue) * 100;
+                      if (percentage > 80) return 'from-red-500 to-red-600';
+                      if (percentage > 60) return 'from-orange-500 to-orange-600';
+                      if (percentage > 40) return 'from-yellow-500 to-yellow-600';
+                      return 'from-blue-500 to-blue-600';
+                    };
+                    
+                    return (
+                      <div key={monthData.mesAno} className="flex flex-col items-center gap-3">
+                        {/* Valor da despesa */}
+                        <div className="text-sm font-bold text-text-primary mb-1">
+                          R$ {(monthData.despesas / 1000).toFixed(1)}k
+                        </div>
+                        
+                        {/* Barra */}
+                        <div 
+                          className={`w-16 bg-gradient-to-t ${getBarColor(monthData.despesas, maxExpense)} rounded-t-lg transition-all duration-1000 ease-out hover:scale-105 hover:shadow-lg cursor-pointer animate-grow-up`}
+                          style={{ 
+                            height: `${Math.max(barHeight, 20)}px`, // altura mínima de 20px
+                            animationDelay: `${index * 0.15}s`
+                          }}
+                          title={`${monthData.mesNome}: R$ ${monthData.despesas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} (${monthData.quantidadeTransacoes} transações)`}
+                        />
+                        
+                        {/* Label do mês */}
+                        <div className="text-sm font-medium text-text-secondary text-center">
+                          {monthData.mesNome.substring(0, 3)}
+                        </div>
+                      </div>
+                    );
+                  })
+                : // Fallback com dados mockados se não houver dados da API
+                  [
+                    { mesAno: "2025-01", mesNome: "Janeiro", despesas: 3250.00, quantidadeTransacoes: 3 },
+                    { mesAno: "2025-02", mesNome: "Fevereiro", despesas: 3700.00, quantidadeTransacoes: 3 },
+                    { mesAno: "2025-03", mesNome: "Março", despesas: 3440.00, quantidadeTransacoes: 3 },
+                    { mesAno: "2025-04", mesNome: "Abril", despesas: 3380.00, quantidadeTransacoes: 3 },
+                    { mesAno: "2025-05", mesNome: "Maio", despesas: 3540.00, quantidadeTransacoes: 3 },
+                    { mesAno: "2025-06", mesNome: "Junho", despesas: 6720.00, quantidadeTransacoes: 11 }
+                  ].map((monthData, index) => {
+                    const maxExpense = 6720.00; // valor máximo do mock
+                    const barHeight = (monthData.despesas / maxExpense) * 180;
+                    
+                    // Cores dinâmicas baseadas no valor
+                    const getBarColor = (value: number, maxValue: number) => {
+                      const percentage = (value / maxValue) * 100;
+                      if (percentage > 80) return 'from-red-500 to-red-600';
+                      if (percentage > 60) return 'from-orange-500 to-orange-600';
+                      if (percentage > 40) return 'from-yellow-500 to-yellow-600';
+                      return 'from-blue-500 to-blue-600';
+                    };
+                    
+                    return (
+                      <div key={monthData.mesAno} className="flex flex-col items-center gap-3">
+                        <div className="text-sm font-bold text-text-primary mb-1">
+                          R$ {(monthData.despesas / 1000).toFixed(1)}k
+                        </div>
+                        <div 
+                          className={`w-16 bg-gradient-to-t ${getBarColor(monthData.despesas, maxExpense)} rounded-t-lg transition-all duration-1000 ease-out hover:scale-105 hover:shadow-lg cursor-pointer animate-grow-up`}
+                          style={{ 
+                            height: `${Math.max(barHeight, 20)}px`,
+                            animationDelay: `${index * 0.15}s`
+                          }}
+                          title={`${monthData.mesNome}: R$ ${monthData.despesas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} (${monthData.quantidadeTransacoes} transações)`}
+                        />
+                        <div className="text-sm font-medium text-text-secondary text-center">
+                          {monthData.mesNome.substring(0, 3)}
+                        </div>
+                      </div>
+                    );
+                  })
+              }
             </div>
             
-            {/* Labels dos meses */}
-            <div className="flex justify-between text-xs text-text-secondary mt-2">
-              {evolucao.meses.map((mes, index) => (
-                <span key={index}>{mes}</span>
-              ))}
-            </div>
-            
-            {/* Legenda */}
-            <div className="flex justify-center gap-6 mt-4">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-success"></div>
-                <span className="text-sm text-text-secondary">Receitas</span>
+            {/* Informações adicionais */}
+            <div className="mt-4 pt-4 border-t border-border">
+              <div className="flex justify-between items-center text-sm mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded bg-gradient-to-r from-blue-500 to-red-600"></div>
+                  <span className="text-text-secondary">Despesas Mensais</span>
+                </div>
+                <div className="text-text-secondary">
+                  Total de {dashboardData.monthlyExpenses.length > 0 
+                    ? dashboardData.monthlyExpenses.reduce((sum, m) => sum + m.quantidadeTransacoes, 0)
+                    : 27} transações
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-accent-pink"></div>
-                <span className="text-sm text-text-secondary">Despesas</span>
+              
+              {/* Legenda das cores */}
+              <div className="grid grid-cols-2 gap-2 text-xs mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded bg-gradient-to-t from-blue-500 to-blue-600"></div>
+                  <span className="text-text-secondary">Baixo (0-40%)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded bg-gradient-to-t from-yellow-500 to-yellow-600"></div>
+                  <span className="text-text-secondary">Médio (40-60%)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded bg-gradient-to-t from-orange-500 to-orange-600"></div>
+                  <span className="text-text-secondary">Alto (60-80%)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded bg-gradient-to-t from-red-500 to-red-600"></div>
+                  <span className="text-text-secondary">Muito Alto (+80%)</span>
+                </div>
+              </div>
+              
+              <div className="text-xs text-text-secondary">
+                Clique nas barras para ver detalhes • Maior gasto: {dashboardData.monthlyExpenses.length > 0 
+                  ? dashboardData.monthlyExpenses.find(m => m.despesas === Math.max(...dashboardData.monthlyExpenses.map(d => d.despesas)))?.mesNome || 'Junho'
+                  : 'Junho'}
               </div>
             </div>
           </div>
@@ -802,65 +769,94 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Card: Resumo de Gastos */}
           <div className="card">
-            <h3 className="text-lg font-semibold text-text-primary mb-4">Resumo de Gastos</h3>
+            <h3 className="text-lg font-semibold text-text-primary mb-4 animate-fade-in">Resumo de Gastos</h3>
             <div className="space-y-6">
-              <div>
+              {/* Total Gasto com animação */}
+              <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-text-secondary">Total Gasto</span>
-                  <span className="text-text-primary font-medium">
+                  <span className="text-text-primary font-medium animate-counter" data-target={data.stats.totalGasto}>
                     R$ {data.stats.totalGasto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </span>
                 </div>
-                <div className="h-2 bg-background rounded-full overflow-hidden">
-                  <div className="h-full bg-accent-blue transition-all duration-1000 ease-out" style={{ width: '100%' }} />
+                <div className="h-3 bg-background rounded-full overflow-hidden shadow-inner">
+                  <div className="h-full bg-gradient-to-r from-accent-blue to-blue-600 animate-fill-right shadow-sm" style={{ animationDelay: '0.5s' }} />
                 </div>
               </div>
 
+              {/* Top Categorias com animação sequencial */}
               <div className="space-y-4">
-                <h4 className="text-sm font-medium text-text-secondary">Top Categorias</h4>
+                <h4 className="text-sm font-medium text-text-secondary animate-fade-in" style={{ animationDelay: '0.7s' }}>Top Categorias</h4>
                 {data.stats.categorias.slice(0, 3).map((categoria: any, index: number) => {
                   const porcentagem = (categoria.valor / data.stats.totalGasto) * 100;
                   return (
-                    <div key={index} className="flex justify-between items-center">
-                      <div className="flex items-center space-x-2">
-                        <categoria.icone className="h-4 w-4" style={{ color: categoria.cor }} />
-                        <span className="text-text-primary text-sm">{categoria.nome}</span>
+                    <div 
+                      key={index} 
+                      className="flex justify-between items-center animate-slide-in-left"
+                      style={{ animationDelay: `${0.9 + index * 0.2}s` }}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className="animate-bounce-soft" style={{ animationDelay: `${1.2 + index * 0.2}s` }}>
+                          <categoria.icone className="h-5 w-5 transition-all duration-300 hover:scale-110 category-icon-glow" style={{ color: categoria.cor }} />
+                        </div>
+                        <span className="text-text-primary text-sm font-medium">{categoria.nome}</span>
                       </div>
                       <div className="text-right">
-                        <div className="text-text-primary font-medium text-sm">
+                        <div className="text-text-primary font-bold text-sm">
                           R$ {categoria.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                         </div>
-                        <div className="text-text-secondary text-xs">{porcentagem.toFixed(1)}%</div>
+                        <div className="text-text-secondary text-xs bg-background px-2 py-1 rounded-full">
+                          {porcentagem.toFixed(1)}%
+                        </div>
                       </div>
                     </div>
                   );
                 })}
               </div>
 
+              {/* Distribuição com barras animadas */}
               <div className="pt-4 border-t border-border">
-                <h4 className="text-sm font-medium text-text-secondary mb-4">Distribuição</h4>
-                <div className="space-y-2">
+                <h4 className="text-sm font-medium text-text-secondary mb-4 animate-fade-in" style={{ animationDelay: '1.5s' }}>Distribuição</h4>
+                <div className="space-y-3">
                   {data.stats.categorias.map((categoria: any, index: number) => {
                     const porcentagem = (categoria.valor / data.stats.totalGasto) * 100;
                     return (
-                      <div key={index} className="flex items-center space-x-2">
-                        <categoria.icone className="h-4 w-4" style={{ color: categoria.cor }} />
-                        <span className="text-xs text-text-secondary w-20">{categoria.nome}</span>
-                        <div className="flex-1 bg-background rounded-full h-2">
+                      <div 
+                        key={index} 
+                        className="flex items-center space-x-2 animate-fade-in"
+                        style={{ animationDelay: `${1.7 + index * 0.1}s` }}
+                      >
+                        <div className="animate-bounce-soft" style={{ animationDelay: `${1.8 + index * 0.1}s` }}>
+                          <categoria.icone className="h-4 w-4 transition-all duration-300 hover:scale-110 category-icon-glow" style={{ color: categoria.cor }} />
+                        </div>
+                        <span className="text-xs text-text-secondary w-20 font-medium">{categoria.nome}</span>
+                        <div className="flex-1 bg-background rounded-full h-3 overflow-hidden shadow-inner">
                           <div
-                            className="h-full rounded-full transition-all duration-1000 ease-out"
+                            className="h-full rounded-full transition-all duration-300 hover:brightness-110 cursor-pointer animate-fill-bar"
                             style={{ 
-                              width: `${porcentagem}%`,
-                              backgroundColor: categoria.cor
-                            }}
+                              animationDelay: `${2.0 + index * 0.1}s`,
+                              backgroundColor: categoria.cor,
+                              '--target-width': `${porcentagem}%`
+                            } as any}
+                            title={`${categoria.nome}: ${porcentagem.toFixed(1)}%`}
                           />
                         </div>
-                        <span className="text-xs text-text-secondary w-8 text-right">
+                        <span className="text-xs text-text-secondary w-10 text-right font-mono">
                           {porcentagem.toFixed(0)}%
                         </span>
                       </div>
                     );
                   })}
+                </div>
+              </div>
+              
+              {/* Estatística adicional */}
+              <div className="animate-fade-in bg-gradient-to-r from-background to-card p-3 rounded-lg border border-border/50" style={{ animationDelay: `${2.2 + data.stats.categorias.length * 0.1}s` }}>
+                <div className="flex justify-between items-center">
+                  <span className="text-text-secondary text-sm">Média por categoria</span>
+                  <span className="text-text-primary font-bold">
+                    R$ {(data.stats.totalGasto / data.stats.categorias.length).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </span>
                 </div>
               </div>
             </div>

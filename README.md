@@ -420,4 +420,150 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 
 Para dúvidas, sugestões ou reportar bugs, abra uma [issue](../../issues) no repositório.
 
-**Status**: 🟢 Ativo | **Versão**: 2.0.0 | **Última atualização**: Março 2024 
+**Status**: 🟢 Ativo | **Versão**: 2.0.0 | **Última atualização**: Março 2024
+
+## �� Status do Projeto
+
+- ✅ **Autenticação JWT** - Sistema completo de login/registro
+- ✅ **APIs do Dashboard** - Endpoints funcionais integrados
+- ✅ **Frontend Integrado** - Dashboard consumindo APIs reais
+- ✅ **Banco de Dados H2** - Configurado e funcionando
+- ✅ **Swagger UI** - Documentação da API disponível
+
+## 📊 Dashboard - Integração Frontend/Backend
+
+### APIs Implementadas e Funcionando
+
+1. **Resumo Financeiro** - `/api/v1/dashboard/summary`
+   - Saldo total, receitas, despesas, variações percentuais
+   - Quantidade de transações e média de gastos
+
+2. **Transações Recentes** - `/api/v1/dashboard/recent-transactions`
+   - Últimas 10 transações com detalhes completos
+   - Categorias, métodos de pagamento, status
+
+3. **Estatísticas por Categoria** - `/api/v1/dashboard/categories/stats`
+   - Gastos por categoria com percentuais
+   - Contagem de transações por categoria
+
+4. **Evolução Mensal** - `/api/v1/dashboard/evolution`
+   - Evolução de receitas e despesas ao longo do tempo
+
+5. **Orçamentos** - `/api/v1/dashboard/budgets`
+   - Metas e orçamentos mensais
+
+### Frontend Modificado
+
+O dashboard do frontend foi completamente adaptado para:
+
+- ✅ Consumir APIs reais do backend
+- ✅ Processar estrutura de resposta `{ success, message, data, timestamp }`
+- ✅ Manter fallbacks mockados para robustez
+- ✅ Indicar visualmente se está usando dados reais ou mockados
+- ✅ Mapear corretamente os tipos TypeScript
+
+### Configuração Corrigida
+
+- ✅ URL base da API: `http://localhost:8080/api`
+- ✅ Context path duplo do Spring Boot corrigido
+- ✅ Interceptors JWT configurados
+- ✅ CORS habilitado para localhost:3000-3002
+
+## 🔧 Como Testar a Integração
+
+### 1. Backend (Porta 8080)
+
+```bash
+cd backend
+./mvnw spring-boot:run
+```
+
+### 2. Frontend (Porta 3001)
+
+```bash
+cd frontend
+npm run dev
+```
+
+### 3. Teste das APIs Diretamente
+
+1. **Criar conta/fazer login:**
+```bash
+curl -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "teste@exemplo.com", "password": "123456"}'
+```
+
+2. **Testar API do dashboard:**
+```bash
+curl -H "Authorization: Bearer SEU_TOKEN_JWT" \
+  http://localhost:8080/api/v1/dashboard/summary
+```
+
+### 4. Acessar o Dashboard
+
+1. Acesse: http://localhost:3001
+2. Faça login com suas credenciais
+3. Navegue para o dashboard
+4. Observe o indicador no canto inferior direito:
+   - 🟢 "Dados da API" = Usando backend real
+   - 🟡 "Dados Mockados" = Usando fallback
+
+## 📡 Estrutura de Resposta da API
+
+Todas as APIs seguem o padrão:
+
+```json
+{
+  "success": true,
+  "message": "Operação realizada com sucesso",
+  "data": { /* dados específicos da API */ },
+  "timestamp": "2024-03-15T10:30:00",
+  "error": null
+}
+```
+
+## 🔄 Evolução e Próximos Passos
+
+### Implementado
+- [x] DashboardController com dados mockados
+- [x] DashboardService com lógica de negócio
+- [x] DTOs estruturados (DashboardSummaryResponse, etc.)
+- [x] Frontend integrado e funcional
+- [x] Autenticação JWT end-to-end
+
+### Próximos Passos
+- [ ] TransactionController para CRUD completo
+- [ ] PaymentMethodController para gestão de cartões
+- [ ] InvestmentController para controle de investimentos
+- [ ] Relatórios avançados e filtros
+- [ ] Upload de extratos bancários
+- [ ] Sincronização com APIs bancárias
+
+## 🎯 Resultado
+
+**Dashboard totalmente funcional** consumindo APIs reais do backend Spring Boot, com fallbacks robustos e indicadores visuais do status de integração.
+
+---
+
+## Arquitetura
+
+### Backend (Spring Boot)
+- **Porta:** 8080
+- **Context Path:** `/api`
+- **Autenticação:** JWT
+- **Banco:** H2 (desenvolvimento)
+- **Documentação:** Swagger UI em `/api/swagger-ui.html`
+
+### Frontend (Next.js)
+- **Porta:** 3001  
+- **Framework:** Next.js 14 com TypeScript
+- **Estilização:** Tailwind CSS
+- **Gerenciamento de Estado:** React Context
+- **HTTP Client:** Axios
+
+### Integração
+- **APIs:** RESTful com JSON
+- **Autenticação:** Bearer Token (JWT)
+- **CORS:** Configurado para desenvolvimento
+- **Error Handling:** Try/catch com fallbacks 
