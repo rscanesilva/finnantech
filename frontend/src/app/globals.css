@@ -2,113 +2,393 @@
 @tailwind components;
 @tailwind utilities;
 
+/* CSS Variables para Themes */
+:root {
+  /* Dark Theme (padrão) */
+  --bg-primary: #161618;
+  --bg-secondary: #1e1e22;
+  --bg-tertiary: #2a2a2e;
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  --text-muted: #6b7280;
+  --accent-green: #32d583;
+  --accent-blue: #5392ff;
+  --accent-pink: #f178b6;
+  --border-primary: #333336;
+  --border-secondary: #27272a;
+}
+
+/* Light Theme */
+.light {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f1f5f9;
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+  --accent-green: #059669;
+  --accent-blue: #3b82f6;
+  --accent-pink: #ec4899;
+  --border-primary: #e2e8f0;
+  --border-secondary: #cbd5e1;
+}
+
 @layer base {
+  html {
+    /* Removido: transition: background-color 0.3s ease, color 0.3s ease; */
+  }
+
   body {
-    @apply bg-background text-text-primary font-sans;
+    background-color: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
+    /* Removido: transition: all 0.3s ease; */
+  }
+
+  /* Força aplicação das cores do tema */
+  * {
+    border-color: var(--border-primary);
+  }
+
+  /* Customização do scrollbar para ambos os temas */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-primary);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply text-text-primary;
+    color: var(--text-primary) !important;
   }
 
   p {
-    @apply text-text-primary;
+    color: var(--text-primary) !important;
+  }
+
+  span {
+    color: inherit;
+  }
+
+  /* Força texto em elementos com classes específicas */
+  .text-text-primary {
+    color: var(--text-primary) !important;
+  }
+
+  .text-text-secondary {
+    color: var(--text-secondary) !important;
+  }
+
+  .bg-background {
+    background-color: var(--bg-primary) !important;
+  }
+
+  .bg-card {
+    background-color: var(--bg-secondary) !important;
   }
 }
 
 @layer components {
   .card {
-    @apply bg-card rounded-card p-card flex flex-col gap-4 text-text-primary;
+    background-color: var(--bg-secondary) !important;
+    border: 1px solid var(--border-primary) !important;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    color: var(--text-primary) !important;
+    transition: all 0.3s ease;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  }
+
+  /* Sombras específicas para cada tema */
+  .light .card {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03) !important;
+  }
+
+  .dark .card {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2) !important;
+  }
+
+  .card:hover {
+    transform: translateY(-1px);
+  }
+
+  .light .card:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03) !important;
+  }
+
+  .dark .card:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2) !important;
   }
 
   .header-card {
-    @apply flex-row items-center justify-between p-4;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
   }
 
   .nav-link {
-    @apply text-text-secondary font-medium transition-colors hover:text-text-primary;
+    color: var(--text-secondary) !important;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+  }
+
+  .nav-link:hover {
+    color: var(--text-primary) !important;
+    background-color: var(--bg-tertiary) !important;
   }
 
   .nav-link.active {
-    @apply text-text-primary;
+    color: var(--text-primary) !important;
+    background-color: var(--bg-tertiary) !important;
+    font-weight: 600;
   }
 
   .action-icon {
-    @apply text-text-secondary text-xl cursor-pointer hover:text-text-primary;
+    color: var(--text-secondary) !important;
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+  }
+
+  .action-icon:hover {
+    color: var(--text-primary) !important;
+    background-color: var(--bg-tertiary) !important;
+    transform: scale(1.05);
   }
 
   .user-profile {
-    @apply flex items-center gap-3;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
   }
 
   .user-avatar {
-    @apply w-10 h-10 rounded-full object-cover;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    object-fit: cover;
   }
 
   .account-label {
-    @apply text-xs text-text-secondary;
+    font-size: 0.75rem;
+    color: var(--text-secondary) !important;
   }
 
   .user-name {
-    @apply font-semibold text-text-primary;
+    font-weight: 600;
+    color: var(--text-primary) !important;
   }
 
   .card-header {
-    @apply flex justify-between items-center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 
   .card-title {
-    @apply font-semibold text-text-primary;
+    font-weight: 600;
+    color: var(--text-primary) !important;
+    font-size: 1.125rem;
   }
 
   .dropdown {
-    @apply bg-[#2a2a2e] border border-border px-3 py-1.5 rounded-lg text-sm cursor-pointer text-text-primary hover:bg-[#333336];
+    background-color: var(--bg-tertiary) !important;
+    border: 1px solid var(--border-primary) !important;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+    color: var(--text-primary) !important;
+    transition: all 0.3s ease;
+  }
+
+  .dropdown:hover {
+    background-color: var(--border-primary) !important;
+    transform: translateY(-1px);
   }
 
   .metric-value {
-    @apply text-2xl font-bold text-text-primary;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary) !important;
   }
 
   .metric-label {
-    @apply text-sm text-text-secondary;
+    font-size: 0.875rem;
+    color: var(--text-secondary) !important;
   }
 
-  input {
-    @apply text-text-primary placeholder-text-secondary;
+  /* Inputs e Forms */
+  input, textarea, select {
+    background-color: var(--bg-tertiary) !important;
+    border: 1px solid var(--border-primary) !important;
+    color: var(--text-primary) !important;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    transition: all 0.3s ease;
+  }
+
+  input::placeholder, textarea::placeholder {
+    color: var(--text-muted) !important;
+  }
+
+  input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--accent-blue) !important;
+    box-shadow: 0 0 0 3px rgba(83, 146, 255, 0.1);
   }
 
   label {
-    @apply text-text-primary;
+    color: var(--text-primary) !important;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  /* Botões */
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent-blue), var(--accent-green));
+    color: white !important;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(83, 146, 255, 0.3);
+  }
+
+  .btn-secondary {
+    background-color: var(--bg-tertiary) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-primary) !important;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .btn-secondary:hover {
+    background-color: var(--border-primary) !important;
+    transform: translateY(-1px);
   }
 }
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+/* Utilities para corrigir classes do Tailwind */
+@layer utilities {
+  /* Override de classes específicas do Tailwind que não respeitam o tema */
+  /* EXCETO elementos dentro de .credit-card-container */
+  .text-2xl:not(.credit-card-container *):not(.credit-card-text):not(.credit-card-text-muted):not(.credit-card-text-semi) {
+    color: var(--text-primary) !important;
+  }
+
+  .text-xl:not(.credit-card-container *):not(.credit-card-text):not(.credit-card-text-muted):not(.credit-card-text-semi) {
+    color: var(--text-primary) !important;
+  }
+
+  .text-lg:not(.credit-card-container *):not(.credit-card-text):not(.credit-card-text-muted):not(.credit-card-text-semi) {
+    color: var(--text-primary) !important;
+  }
+
+  .text-base:not(.credit-card-container *):not(.credit-card-text):not(.credit-card-text-muted):not(.credit-card-text-semi) {
+    color: var(--text-primary) !important;
+  }
+
+  .text-sm:not(.credit-card-container *):not(.credit-card-text):not(.credit-card-text-muted):not(.credit-card-text-semi) {
+    color: var(--text-secondary) !important;
+  }
+
+  .text-xs:not(.credit-card-container *):not(.credit-card-text):not(.credit-card-text-muted):not(.credit-card-text-semi) {
+    color: var(--text-secondary) !important;
+  }
+
+  /* Font weights mantêm a cor padrão */
+  .font-bold, .font-semibold, .font-medium {
+    color: inherit;
+  }
+
+  /* Classes de override específicas */
+  .text-primary-force {
+    color: var(--text-primary) !important;
+  }
+
+  .text-secondary-force {
+    color: var(--text-secondary) !important;
+  }
+
+  .bg-primary-force {
+    background-color: var(--bg-primary) !important;
+  }
+
+  .bg-secondary-force {
+    background-color: var(--bg-secondary) !important;
+  }
+
+  .bg-tertiary-force {
+    background-color: var(--bg-tertiary) !important;
+  }
+
+  /* Classes específicas do light theme */
+  .light .min-h-screen {
+    background-color: var(--bg-primary) !important;
+  }
+
+  .light .border-border {
+    border-color: var(--border-primary) !important;
+  }
+
+  /* Aplicar cores de status */
+  .text-success {
+    color: #10b981 !important;
+  }
+
+  .text-warning {
+    color: #f59e0b !important;
+  }
+
+  .text-error {
+    color: #ef4444 !important;
+  }
+
+  .text-info {
+    color: #0ea5e9 !important;
+  }
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-    to bottom,
-    transparent,
-    rgb(var(--background-end-rgb))
-  )
-  rgb(var(--background-start-rgb));
-}
-
-/* Adicionando novas cores de destaque */
-.bg-accent-pink { @apply bg-[#f178b6]; }
-.text-accent-pink { @apply text-[#f178b6]; }
-.bg-accent-orange { @apply bg-[#ff9500]; }
-.text-accent-orange { @apply text-[#ff9500]; }
-.bg-accent-yellow { @apply bg-[#ffcc00]; }
-.text-accent-yellow { @apply text-[#ffcc00]; }
-.bg-accent-red { @apply bg-[#ff3b30]; }
-.text-accent-red { @apply text-[#ff3b30]; }
-.bg-accent-gray { @apply bg-[#8e8e93]; }
-.text-accent-gray { @apply text-[#8e8e93]; }
+/* Cores de destaque personalizadas */
+.bg-accent-pink { background-color: var(--accent-pink); }
+.text-accent-pink { color: var(--accent-pink); }
+.bg-accent-orange { background-color: #ff9500; }
+.text-accent-orange { color: #ff9500; }
+.bg-accent-yellow { background-color: #ffcc00; }
+.text-accent-yellow { color: #ffcc00; }
+.bg-accent-red { background-color: #ff3b30; }
+.text-accent-red { color: #ff3b30; }
+.bg-accent-gray { background-color: #8e8e93; }
+.text-accent-gray { color: #8e8e93; }
 
 /* Animações para gráficos */
 @keyframes draw-line {
@@ -194,6 +474,7 @@ body {
   }
 }
 
+/* Classes de animação */
 .animate-draw-line {
   animation: draw-line 2s ease-out forwards;
 }
@@ -243,11 +524,6 @@ body {
   filter: drop-shadow(0 0 8px currentColor);
 }
 
-/* Estilo para dropdown personalizado */
-.bg-card-secondary {
-  @apply bg-[#2a2a2e];
-}
-
 /* Hover effects para gráficos */
 svg circle:hover {
   r: 6;
@@ -257,4 +533,80 @@ svg circle:hover {
 .css-bar:hover {
   opacity: 0.8;
   transition: opacity 0.2s ease;
+}
+
+/* Theme transition animations */
+.theme-transition {
+  /* Removido para troca instantânea: transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease; */
+}
+
+/* Específico para correções do light theme */
+.light {
+  color-scheme: light;
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+/* Classes específicas para cartão de crédito - SEMPRE BRANCO */
+.credit-card-container {
+  color: #ffffff !important;
+}
+
+.credit-card-container * {
+  color: #ffffff !important;
+}
+
+.credit-card-text {
+  color: #ffffff !important;
+}
+
+.credit-card-text-muted {
+  color: #ffffff !important;
+  opacity: 0.7;
+}
+
+.credit-card-text-semi {
+  color: #ffffff !important;
+  opacity: 0.9;
+}
+
+/* Força específica para sobrescrever utilities do Tailwind no cartão */
+.credit-card-container .text-base,
+.credit-card-container .text-lg,
+.credit-card-container .text-xl,
+.credit-card-container .text-2xl,
+.credit-card-container .text-sm,
+.credit-card-container .text-xs {
+  color: #ffffff !important;
+}
+
+/* Ainda mais específico - com responsive variants */
+.credit-card-container .sm\:text-base,
+.credit-card-container .sm\:text-lg,
+.credit-card-container .sm\:text-xl,
+.credit-card-container .lg\:text-xl,
+.credit-card-container .lg\:text-2xl {
+  color: #ffffff !important;
+}
+
+/* Máxima especificidade para garantir que sempre funcione */
+.credit-card-container.credit-card-container * {
+  color: #ffffff !important;
+}
+
+/* Classes específicas com dupla especificidade */
+.credit-card-container .credit-card-text.credit-card-text {
+  color: #ffffff !important;
+}
+
+.credit-card-container .credit-card-text-muted.credit-card-text-muted {
+  color: #ffffff !important;
+  opacity: 0.7;
+}
+
+.credit-card-container .credit-card-text-semi.credit-card-text-semi {
+  color: #ffffff !important;
+  opacity: 0.9;
 } 

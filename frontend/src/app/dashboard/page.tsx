@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useDashboard } from '@/hooks/useDashboard';
+import { ThemeToggleCompact } from './components/ThemeToggle';
 import {
   ChartLine,
   Wallet,
@@ -347,6 +348,7 @@ export default function DashboardPage() {
               <button className="text-text-secondary hover:text-text-primary">
                 <Question className="h-5 w-5" />
               </button>
+              <ThemeToggleCompact />
             </div>
             <div className="flex items-center gap-3">
               <img
@@ -501,7 +503,7 @@ export default function DashboardPage() {
                       >
                         {/* Design do Cartão */}
                         <div 
-                          className="w-full h-full rounded-xl p-4 sm:p-6 text-white relative overflow-hidden shadow-2xl"
+                          className="w-full h-full rounded-xl p-4 sm:p-6 relative overflow-hidden shadow-2xl credit-card-container"
                           style={{ 
                             background: cartao.cor,
                             minHeight: '200px'
@@ -513,17 +515,17 @@ export default function DashboardPage() {
                           
                           {/* Header do cartão */}
                           <div className="flex justify-between items-start mb-4 sm:mb-6">
-                            <div className="text-sm sm:text-base opacity-90 font-medium">
+                            <div className="text-sm sm:text-base font-medium credit-card-text-semi credit-card-text-semi">
                               {cartao.bandeira}
                             </div>
-                            <div className="text-lg sm:text-xl">
+                            <div className="text-lg sm:text-xl credit-card-text credit-card-text">
                               {cartao.bandeiraIcone}
                             </div>
                           </div>
 
                           {/* Número do cartão */}
                           <div className="mb-3 sm:mb-4">
-                            <div className="text-base sm:text-lg lg:text-xl font-mono tracking-widest">
+                            <div className="text-base sm:text-lg lg:text-xl font-mono tracking-widest credit-card-text credit-card-text">
                               •••• •••• •••• {cartao.ultimosDigitos}
                             </div>
                           </div>
@@ -531,18 +533,18 @@ export default function DashboardPage() {
                           {/* Footer do cartão */}
                           <div className="flex justify-between items-end">
                             <div>
-                              <div className="text-xs opacity-70 uppercase tracking-wide mb-1">
+                              <div className="text-xs uppercase tracking-wide mb-1 credit-card-text-muted credit-card-text-muted">
                                 Portador
                               </div>
-                              <div className="text-sm sm:text-base font-medium">
+                              <div className="text-sm sm:text-base font-medium credit-card-text credit-card-text">
                                 {cartao.nome}
                               </div>
                             </div>
                             <div>
-                              <div className="text-xs opacity-70 uppercase tracking-wide mb-1">
+                              <div className="text-xs uppercase tracking-wide mb-1 credit-card-text-muted credit-card-text-muted">
                                 Válido até
                               </div>
-                              <div className="text-sm sm:text-base font-medium font-mono">
+                              <div className="text-sm sm:text-base font-medium font-mono credit-card-text credit-card-text">
                                 {cartao.vencimento}
                               </div>
                             </div>
